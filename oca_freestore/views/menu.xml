@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright (C) 2016-Today: Odoo Community Association (OCA)
+@author: Sylvain LE GAL (https://twitter.com/legalsylvain)
+License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
+-->
+<openerp><data>
+
+    <menuitem id="menu_github"
+        name="Github"/>
+
+    <menuitem id="menu_github_activity"
+        parent="menu_github"
+        sequence="10"
+        name="Github Activities"/>
+
+    <menuitem id="menu_github_user"
+        name="Github Users"
+        parent="menu_github_activity"
+        sequence="1"
+        action="action_github_user"/>
+
+    <menuitem id="menu_github_team"
+        name="Github Teams"
+        parent="menu_github_activity"
+        sequence="2"
+        action="action_github_team"/>
+
+    <menuitem id="menu_github_repository"
+        name="Github Repositories"
+        parent="menu_github_activity"
+        sequence="3"
+        action="action_github_repository"/>
+
+    <menuitem id="menu_github_repository_branch"
+        name="Github Repository Branches"
+        parent="menu_github_activity"
+        sequence="4"
+        action="action_github_repository_branch"/>
+
+    <menuitem id="menu_github_setting"
+        parent="menu_github"
+        sequence="50"
+        name="Github Settings"/>
+
+    <menuitem id="menu_github_organization"
+        name="Github Organizations"
+        parent="menu_github_setting"
+        sequence="1"
+        action="action_github_organization"/>
+
+</data></openerp>
