@@ -5,10 +5,9 @@
 
 from openerp import models, fields, api
 
+
 class OcaModuleVersion(models.Model):
     _name = 'oca.module.version'
-
-#    _inherits = {'oca.module': 'module_id'}
 
     # Column Section
     name = fields.Char(
@@ -62,11 +61,7 @@ class OcaModuleVersion(models.Model):
                 info['license']).id,
             'repository_branch_id': repository_branch.id,
             'module_id': module.id,
-#            'image': get_base64_image_from_url(data['avatar_url']),
         }
-
-
-    # TODO idea : set active == installable ?
 
     # Custom Section
     @api.model

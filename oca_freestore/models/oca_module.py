@@ -5,6 +5,7 @@
 
 from openerp import models, fields, api
 
+
 class OcaModule(models.Model):
     _name = 'oca.module'
 

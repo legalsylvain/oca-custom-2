@@ -5,12 +5,10 @@
 
 from openerp import models, fields, api
 
-from .tools import get_from_github, get_base64_image_from_url
-
 
 class GithubOrganization(models.Model):
     _name = 'github.organization'
-    _description = 'Github Organizations'
+    _inherit = ['github.connector']
 
     # Columns Section
     name = fields.Char(string='Organization Name', required=True)
@@ -74,7 +72,7 @@ class GithubOrganization(models.Model):
             'website_url': data['blog'],
             'email': data['email'],
             'billing_email': data['billing_email'],
-            'image': get_base64_image_from_url(data['avatar_url']),
+            'image': self.get_base64_image_from_url(data['avatar_url']),
         }
 
     # Action Section
@@ -94,33 +92,32 @@ class GithubOrganization(models.Model):
         per_page = 10
         for organization in self:
             # Get organization data
-            data = get_from_github(
+            data = self.get_from_github(
                 'https://api.github.com/orgs/%s' % (organization.github_login))
-            print data
             organization.write(self.github_2_odoo(data))
 
-#            # Get members data
-#            member_ids = []
-#            page = 1
-#            while True:
-#                datas = get_from_github(
-#                    "https://api.github.com/orgs/%s/members"
-#                    "?per_page=%d&page=%d" % (
-#                        organization.github_login, per_page, page))
-#                if datas == []:
-#                    break
-#                for data in datas:
-#                    partner = partner_obj.create_or_update_from_github(
-#                        data, full)
-#                    member_ids.append(partner.id)
-#                page += 1
-#            organization.public_member_ids = member_ids
+            # Get members data
+            member_ids = []
+            page = 1
+            while True:
+                datas = self.get_from_github(
+                    "https://api.github.com/orgs/%s/members"
+                    "?per_page=%d&page=%d" % (
+                        organization.github_login, per_page, page))
+                if datas == []:
+                    break
+                for data in datas:
+                    partner = partner_obj.create_or_update_from_github(
+                        data, full)
+                    member_ids.append(partner.id)
+                page += 1
+            organization.public_member_ids = member_ids
 
             # Get Repositories data
             repository_ids = []
             page = 1
             while True:
-                datas = get_from_github(
+                datas = self.get_from_github(
                     "https://api.github.com/orgs/%s/repos"
                     "?per_page=%d&page=%d" % (
                         organization.github_login, per_page, page))
@@ -133,19 +130,19 @@ class GithubOrganization(models.Model):
                 page += 1
             organization.repository_ids = repository_ids
 
-#            # Get Teams data
-#            team_ids = []
-#            page = 1
-#            while True:
-#                datas = get_from_github(
-#                "https://api.github.com/orgs/%s/teams"
-#                    "?per_page=%d&page=%d" % (
-#                        organization.github_login, per_page, page))
-#                if datas == []:
-#                    break
-#                for data in datas:
-#                    team = team_obj.create_or_update_from_github(
-#                        organization.id, data, full)
-#                    team_ids.append(team.id)
-#                page += 1
-#            organization.team_ids = team_ids
+            # Get Teams data
+            team_ids = []
+            page = 1
+            while True:
+                datas = self.get_from_github(
+                    "https://api.github.com/orgs/%s/teams"
+                    "?per_page=%d&page=%d" % (
+                        organization.github_login, per_page, page))
+                if datas == []:
+                    break
+                for data in datas:
+                    team = team_obj.create_or_update_from_github(
+                        organization.id, data, full)
+                    team_ids.append(team.id)
+                page += 1
+            organization.team_ids = team_ids

@@ -42,6 +42,8 @@ Known issues / Roadmap
 -> name;
 -> 
 
+for oca.module.version : 
+TODO idea : set active == installable ?
 
 * Make a wizard on update organization with option update partner / update repository ...
 * Make a class 'github.connection' to make partner and repository... inherit from this class

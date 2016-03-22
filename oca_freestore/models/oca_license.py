@@ -5,6 +5,7 @@
 
 from openerp import models, fields, api
 
+
 class OcaLicense(models.Model):
     _name = 'oca.license'
 

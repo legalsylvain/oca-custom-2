@@ -5,11 +5,10 @@
 
 from openerp import models, fields, api
 
-from .tools import get_from_github, get_base64_image_from_url
-
 
 class GithubRepository(models.Model):
     _name = 'github.repository'
+    _inherit = ['github.connector']
 
     # Column Section
     organization_id = fields.Many2one(
@@ -61,7 +60,7 @@ class GithubRepository(models.Model):
             return repository
 
         # Get Full Datas from Github
-        odoo_data = self.github_2_odoo(get_from_github(
+        odoo_data = self.github_2_odoo(self.get_from_github(
                 'https://api.github.com/repos/%s' % (data['full_name'])))
         odoo_data.update({'organization_id': organization_id})
         if not repository:
@@ -70,13 +69,11 @@ class GithubRepository(models.Model):
             repository.write(odoo_data)
 
         # Get Branches
-        branch_datas = get_from_github(
+        branch_datas = self.get_from_github(
             'https://api.github.com/repos/%s/branches' % (
                 data['full_name']))
         for branch_data in branch_datas:
-            repository_branch = repository_branch_obj.\
-                create_or_update_from_name(repository.id, branch_data['name'])
+            repository_branch_obj.create_or_update_from_name(
+                repository.id, branch_data['name'])
 
         return repository
-        # TODO get branches https://api.github.com/repos/OCA/xxx/branches
-

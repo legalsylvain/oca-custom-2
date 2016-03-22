@@ -17,7 +17,7 @@ class WizardGithubRepositoryBranch(models.TransientModel):
 
     @api.multi
     def apply(self):
-        repository_obj =self.env['github.repository.branch']
+        repository_obj = self.env['github.repository.branch']
         for wizard in self:
             branches = repository_obj.browse(self._context['active_ids'])
             if wizard.download_source_code:

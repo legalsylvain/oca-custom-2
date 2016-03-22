@@ -5,11 +5,10 @@
 
 from openerp import models, fields, api
 
-from .tools import get_from_github, get_base64_image_from_url
-
 
 class GithubTeam(models.Model):
     _name = 'github.team'
+    _inherit = ['github.connector']
 
     # Column Section
     organization_id = fields.Many2one(
@@ -80,17 +79,13 @@ class GithubTeam(models.Model):
         member_ids = []
         page = 1
         while True:
-            datas = get_from_github(
-            "https://api.github.com/teams/%d/members"
+            datas = self.get_from_github(
+                "https://api.github.com/teams/%d/members"
                 "?per_page=%d&page=%d" % (
                     team.github_id, per_page, page))
             if datas == []:
                 break
             for data in datas:
-                print data['login']
-                print data['type']
-                print data['site_admin']
-                
                 partner = partner_obj.create_or_update_from_github(
                     data, False)
                 member_ids.append(partner.id)

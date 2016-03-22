@@ -1,6 +1,7 @@
 # -#- coding: utf-8 -#-
 from . import res_partner
 
+from . import github_connector
 
 from . import oca_license
 from . import oca_module

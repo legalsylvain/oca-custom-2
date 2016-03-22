@@ -5,10 +5,10 @@
 
 from openerp import models, fields, api
 
-from .tools import get_from_github, get_base64_image_from_url
 
 class ResPartner(models.Model):
     _inherit = 'res.partner'
+    _inherit = ['github.connector']
 
     # Column Section
     github_login = fields.Char(string='Github Login', select=True)
@@ -35,17 +35,18 @@ class ResPartner(models.Model):
     @api.multi
     def compute_has_github_account(self):
         for partner in self:
-            partner.has_github_account = partner.github_login != False
+            partner.has_github_account = (partner.github_login is not False)
 
     # Custom Section
     def github_2_odoo(self, data):
         return {
-            'name': data['name'] and data['name']
-                or '%s (Github)' % data['login'],
+            'name':
+                data['name'] and data['name'] or
+                '%s (Github)' % data['login'],
             'github_login': data['login'],
             'website': data['blog'],
             'email': data['email'],
-            'image': get_base64_image_from_url(data['avatar_url']),
+            'image': self.get_base64_image_from_url(data['avatar_url']),
         }
 
     # Custom Section
@@ -58,7 +59,7 @@ class ResPartner(models.Model):
             return partner
 
         # Get Full Datas from Github
-        odoo_data = self.github_2_odoo(get_from_github(
+        odoo_data = self.github_2_odoo(self.get_from_github(
             'https://api.github.com/users/%s' % (data['login'])))
 
         if not partner:
@@ -66,4 +67,3 @@ class ResPartner(models.Model):
         else:
             partner.write(odoo_data)
         return partner
-
