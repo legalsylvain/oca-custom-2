@@ -34,6 +34,15 @@ xxx
 Known issues / Roadmap
 ======================
 
+* allow git pull pour les repos existant;
+
+* check modules and create if not exists, based on odoo core parsing.
+
+-> technical_name;
+-> name;
+-> 
+
+
 * Make a wizard on update organization with option update partner / update repository ...
 * Make a class 'github.connection' to make partner and repository... inherit from this class
 -> make
@@ -41,6 +50,12 @@ Known issues / Roadmap
 * should be great to have the different distinction of membership : member, owner,  for a team.
 
 change github_login to github_name (github.organization)
+
+
+Daniel Reis ‏@reis_pt 2 mars
+
+If OCA had an App Store, I could test drive modules in the store just by following a link... #ThinkingOutLoud
+
 
 Credits
 =======

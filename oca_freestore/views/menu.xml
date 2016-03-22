@@ -9,10 +9,33 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
     <menuitem id="menu_github"
         name="Github"/>
 
-    <menuitem id="menu_github_activity"
+    <menuitem id="menu_github_source_code"
         parent="menu_github"
         sequence="10"
-        name="Github Activities"/>
+        name="Source Code"/>
+
+    <menuitem id="menu_github_oca_module"
+        name="OCA Modules"
+        parent="menu_github_source_code"
+        sequence="1"
+        action="action_github_oca_module"/>
+
+    <menuitem id="menu_github_oca_module_version"
+        name="OCA Module Versions"
+        parent="menu_github_source_code"
+        sequence="2"
+        action="action_github_oca_module_version"/>
+
+    <menuitem id="menu_github_oca_license"
+        name="OCA Licenses"
+        parent="menu_github_source_code"
+        sequence="3"
+        action="action_github_oca_license"/>
+
+    <menuitem id="menu_github_activity"
+        parent="menu_github"
+        sequence="20"
+        name="Github Community"/>
 
     <menuitem id="menu_github_user"
         name="Github Users"

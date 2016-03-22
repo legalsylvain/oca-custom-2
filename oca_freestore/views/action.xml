@@ -6,6 +6,32 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 -->
 <openerp><data>
 
+    <!-- Source Code Part -->
+    <record id="action_github_oca_module" model="ir.actions.act_window">
+        <field name="name">OCA Modules</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">oca.module</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="action_github_oca_module_version" model="ir.actions.act_window">
+        <field name="name">OCA Module Versions</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">oca.module.version</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="action_github_oca_license" model="ir.actions.act_window">
+        <field name="name">OCA Licenses</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">oca.license</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Community Part -->
     <record id="action_github_user" model="ir.actions.act_window">
         <field name="name">Github Users</field>
         <field name="type">ir.actions.act_window</field>
@@ -39,6 +65,7 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
         <field name="view_mode">tree,form</field>
     </record>
 
+    <!-- Setting Part -->
     <record id="action_github_organization" model="ir.actions.act_window">
         <field name="name">Github Organizations</field>
         <field name="type">ir.actions.act_window</field>

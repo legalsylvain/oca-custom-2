@@ -17,6 +17,11 @@ class ResPartner(models.Model):
         compute='compute_has_github_account',
         string='Has Github Account', select=True, store=True, readonly=True)
 
+    team_ids = fields.Many2many(
+        string='Teams', comodel_name='github.team',
+        relation='github_team_partner_rel', column1='partner_id',
+        column2='team_id', readonly=True)
+
     # Constraints Section
     _sql_constraints = [
         (

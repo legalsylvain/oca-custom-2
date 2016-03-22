@@ -50,9 +50,16 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
         <field name="model">res.partner</field>
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">
-            <field name="website" position="after">
-                <field name="github_login" />
-            </field>
+            <page name="internal_notes" position="after">
+                <page name="github" string="Github">
+                    <group string="General information" colspan="4">
+                        <field name="github_login" />
+                    </group>
+                    <group string="Team Memberships">
+                        <field name="team_ids" nolabel="1" />
+                    </group>
+                </page>
+            </page>
         </field>
     </record>
 
