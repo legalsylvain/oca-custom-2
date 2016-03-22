@@ -60,18 +60,17 @@ class GithubRepository(models.Model):
             return repository
 
         # Get Full Datas from Github
-        odoo_data = self.github_2_odoo(self.get_from_github(
-                'https://api.github.com/repos/%s' % (data['full_name'])))
+        odoo_data = self.github_2_odoo(self.get_data_from_github(
+                'repository', [data['full_name']]))
         odoo_data.update({'organization_id': organization_id})
         if not repository:
             repository = self.create(odoo_data)
         else:
             repository.write(odoo_data)
 
-        # Get Branches
-        branch_datas = self.get_from_github(
-            'https://api.github.com/repos/%s/branches' % (
-                data['full_name']))
+        # Get Branches Data
+        branch_datas = self.get_datalist_from_github(
+            'repository_branches', [data['full_name']])
         for branch_data in branch_datas:
             repository_branch_obj.create_or_update_from_name(
                 repository.id, branch_data['name'])

@@ -42,6 +42,7 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
         <field name="arch" type="xml">
             <field name="display_name" position="after">
                 <field name="github_login" />
+                <field name="team_qty" />
             </field>
         </field>
     </record>
@@ -54,6 +55,7 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
                 <page name="github" string="Github">
                     <group string="General information" colspan="4">
                         <field name="github_login" />
+                        <field name="team_qty" />
                     </group>
                     <group string="Team Memberships">
                         <field name="team_ids" nolabel="1" />

@@ -22,6 +22,9 @@ class ResPartner(models.Model):
         relation='github_team_partner_rel', column1='partner_id',
         column2='team_id', readonly=True)
 
+    team_qty = fields.Integer(
+        string='Teams Quantity', compute='compute_team_qty', store=True)
+
     # Constraints Section
     _sql_constraints = [
         (
@@ -37,6 +40,12 @@ class ResPartner(models.Model):
         for partner in self:
             partner.has_github_account = (partner.github_login is not False)
 
+    @api.multi
+    @api.depends('team_ids')
+    def compute_team_qty(self):
+        for partner in self:
+            partner.team_qty = len(partner.team_ids)
+
     # Custom Section
     def github_2_odoo(self, data):
         return {
@@ -46,7 +55,7 @@ class ResPartner(models.Model):
             'github_login': data['login'],
             'website': data['blog'],
             'email': data['email'],
-            'image': self.get_base64_image_from_url(data['avatar_url']),
+            'image': self.get_base64_image_from_github(data['avatar_url']),
         }
 
     # Custom Section
@@ -59,8 +68,8 @@ class ResPartner(models.Model):
             return partner
 
         # Get Full Datas from Github
-        odoo_data = self.github_2_odoo(self.get_from_github(
-            'https://api.github.com/users/%s' % (data['login'])))
+        odoo_data = self.github_2_odoo(self.get_data_from_github(
+            'user', [data['login']]))
 
         if not partner:
             partner = self.create(odoo_data)

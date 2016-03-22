@@ -9,6 +9,7 @@ from openerp import models, fields, api
 class GithubTeam(models.Model):
     _name = 'github.team'
     _inherit = ['github.connector']
+    _order = 'name'
 
     # Column Section
     organization_id = fields.Many2one(
@@ -61,9 +62,8 @@ class GithubTeam(models.Model):
         """Create a new team or update an existing one based on github
         datas. Return a team."""
         partner_obj = self.env['res.partner']
-        per_page = 100
-        team = self.search([('github_name', '=', data['slug'])])
 
+        team = self.search([('github_name', '=', data['slug'])])
         if team and not full:
             return team
 
@@ -75,23 +75,12 @@ class GithubTeam(models.Model):
         else:
             team.write(odoo_data)
 
-        # Get members
+        # Get Members datas
         member_ids = []
-        page = 1
-        while True:
-            datas = self.get_from_github(
-                "https://api.github.com/teams/%d/members"
-                "?per_page=%d&page=%d" % (
-                    team.github_id, per_page, page))
-            if datas == []:
-                break
-            for data in datas:
-                partner = partner_obj.create_or_update_from_github(
-                    data, False)
-                member_ids.append(partner.id)
-            if len(datas) < per_page:
-                break
-            page += 1
+        for data in self.get_datalist_from_github(
+                'team_members', [team.github_id]):
+            partner = partner_obj.create_or_update_from_github(data, False)
+            member_ids.append(partner.id)
         team.member_ids = member_ids
 
         return team

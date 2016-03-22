@@ -72,7 +72,7 @@ class GithubOrganization(models.Model):
             'website_url': data['blog'],
             'email': data['email'],
             'billing_email': data['billing_email'],
-            'image': self.get_base64_image_from_url(data['avatar_url']),
+            'image': self.get_base64_image_from_github(data['avatar_url']),
         }
 
     # Action Section
@@ -89,60 +89,36 @@ class GithubOrganization(models.Model):
         partner_obj = self.env['res.partner']
         repository_obj = self.env['github.repository']
         team_obj = self.env['github.team']
-        per_page = 10
+
         for organization in self:
+
             # Get organization data
             data = self.get_data_from_github(
-                'https://api.github.com/orgs/%s' % (organization.github_login))
+                'organization', [organization.github_login])
             organization.write(self.github_2_odoo(data))
 
-#            # Get members data
-#            member_ids = []
-#            page = 1
-#            while True:
-#                datas = self.get_from_github(
-#                    "https://api.github.com/orgs/%s/members"
-#                    "?per_page=%d&page=%d" % (
-#                        organization.github_login, per_page, page))
-#                if datas == []:
-#                    break
-#                for data in datas:
-#                    partner = partner_obj.create_or_update_from_github(
-#                        data, full)
-#                    member_ids.append(partner.id)
-#                page += 1
-#            organization.public_member_ids = member_ids
+            # Get Members datas
+            member_ids = []
+            for data in self.get_datalist_from_github(
+                    'organization_members', [organization.github_login]):
+                partner = partner_obj.create_or_update_from_github(data, full)
+                member_ids.append(partner.id)
+            organization.public_member_ids = member_ids
 
-#            # Get Repositories data
-#            repository_ids = []
-#            page = 1
-#            while True:
-#                datas = self.get_from_github(
-#                    "https://api.github.com/orgs/%s/repos"
-#                    "?per_page=%d&page=%d" % (
-#                        organization.github_login, per_page, page))
-#                if datas == []:
-#                    break
-#                for data in datas:
-#                    repository = repository_obj.create_or_update_from_github(
-#                        organization.id, data, full)
-#                    repository_ids.append(repository.id)
-#                page += 1
-#            organization.repository_ids = repository_ids
+            # Get Repositories datas
+            repository_ids = []
+            for data in self.get_datalist_from_github(
+                    'organization_repositories', [organization.github_login]):
+                repository = repository_obj.create_or_update_from_github(
+                    organization.id, data, full)
+                repository_ids.append(repository.id)
+            organization.repository_ids = repository_ids
 
-#            # Get Teams data
-#            team_ids = []
-#            page = 1
-#            while True:
-#                datas = self.get_from_github(
-#                    "https://api.github.com/orgs/%s/teams"
-#                    "?per_page=%d&page=%d" % (
-#                        organization.github_login, per_page, page))
-#                if datas == []:
-#                    break
-#                for data in datas:
-#                    team = team_obj.create_or_update_from_github(
-#                        organization.id, data, full)
-#                    team_ids.append(team.id)
-#                page += 1
-#            organization.team_ids = team_ids
+            # Get Teams datas
+            team_ids = []
+            for data in self.get_datalist_from_github(
+                    'organization_teams', [organization.github_login]):
+                team = team_obj.create_or_update_from_github(
+                    organization.id, data, full)
+                team_ids.append(team.id)
+            organization.team_ids = team_ids
