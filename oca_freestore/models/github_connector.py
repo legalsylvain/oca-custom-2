@@ -10,17 +10,30 @@ import urllib
 
 from requests.auth import HTTPBasicAuth
 
-from openerp import models
+from openerp import models, exceptions, _
 
 
 class GithubConnector(models.AbstractModel):
     _name = 'github.connector'
 
-    def get_from_github(self, url):
-        login = '****'
-        password = '****'
+    def get_data_from_github(self, url):
+        login = self.env['ir.config_parameter'].get_param('github.login')
+        password = self.env['ir.config_parameter'].get_param('github.password')
         response = requests.get(
             url, verify=False, auth=HTTPBasicAuth(login, password))
+        if response.status_code == 401:
+            raise exceptions.Warning(
+                _("Github Access Error"),
+                _("Unable to authenticate to Github with the login '%s'.\n"
+                "You should Check your credentials in the Odoo Parameters"
+                " Menu.") % (login))
+        elif response.status_code != 200:
+            raise exceptions.Warning(
+                _("Github Error"),
+                _("The call to '%s' failed:\n"
+                    "- Status Code: %d\n"
+                    "- Reason: %s") % (
+                    response.url, response.status_code, response.reason))
         return json.loads(response.content)
 
     # TODO [IMP] move this function in a more core section

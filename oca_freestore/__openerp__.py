@@ -12,6 +12,7 @@
         'base',
     ],
     'data': [
+        'data/ir_config_parameter.xml',
         'views/view_res_partner.xml',
         'views/view_oca_license.xml',
         'views/view_oca_module.xml',

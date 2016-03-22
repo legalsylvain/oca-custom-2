@@ -92,57 +92,57 @@ class GithubOrganization(models.Model):
         per_page = 10
         for organization in self:
             # Get organization data
-            data = self.get_from_github(
+            data = self.get_data_from_github(
                 'https://api.github.com/orgs/%s' % (organization.github_login))
             organization.write(self.github_2_odoo(data))
 
-            # Get members data
-            member_ids = []
-            page = 1
-            while True:
-                datas = self.get_from_github(
-                    "https://api.github.com/orgs/%s/members"
-                    "?per_page=%d&page=%d" % (
-                        organization.github_login, per_page, page))
-                if datas == []:
-                    break
-                for data in datas:
-                    partner = partner_obj.create_or_update_from_github(
-                        data, full)
-                    member_ids.append(partner.id)
-                page += 1
-            organization.public_member_ids = member_ids
+#            # Get members data
+#            member_ids = []
+#            page = 1
+#            while True:
+#                datas = self.get_from_github(
+#                    "https://api.github.com/orgs/%s/members"
+#                    "?per_page=%d&page=%d" % (
+#                        organization.github_login, per_page, page))
+#                if datas == []:
+#                    break
+#                for data in datas:
+#                    partner = partner_obj.create_or_update_from_github(
+#                        data, full)
+#                    member_ids.append(partner.id)
+#                page += 1
+#            organization.public_member_ids = member_ids
 
-            # Get Repositories data
-            repository_ids = []
-            page = 1
-            while True:
-                datas = self.get_from_github(
-                    "https://api.github.com/orgs/%s/repos"
-                    "?per_page=%d&page=%d" % (
-                        organization.github_login, per_page, page))
-                if datas == []:
-                    break
-                for data in datas:
-                    repository = repository_obj.create_or_update_from_github(
-                        organization.id, data, full)
-                    repository_ids.append(repository.id)
-                page += 1
-            organization.repository_ids = repository_ids
+#            # Get Repositories data
+#            repository_ids = []
+#            page = 1
+#            while True:
+#                datas = self.get_from_github(
+#                    "https://api.github.com/orgs/%s/repos"
+#                    "?per_page=%d&page=%d" % (
+#                        organization.github_login, per_page, page))
+#                if datas == []:
+#                    break
+#                for data in datas:
+#                    repository = repository_obj.create_or_update_from_github(
+#                        organization.id, data, full)
+#                    repository_ids.append(repository.id)
+#                page += 1
+#            organization.repository_ids = repository_ids
 
-            # Get Teams data
-            team_ids = []
-            page = 1
-            while True:
-                datas = self.get_from_github(
-                    "https://api.github.com/orgs/%s/teams"
-                    "?per_page=%d&page=%d" % (
-                        organization.github_login, per_page, page))
-                if datas == []:
-                    break
-                for data in datas:
-                    team = team_obj.create_or_update_from_github(
-                        organization.id, data, full)
-                    team_ids.append(team.id)
-                page += 1
-            organization.team_ids = team_ids
+#            # Get Teams data
+#            team_ids = []
+#            page = 1
+#            while True:
+#                datas = self.get_from_github(
+#                    "https://api.github.com/orgs/%s/teams"
+#                    "?per_page=%d&page=%d" % (
+#                        organization.github_login, per_page, page))
+#                if datas == []:
+#                    break
+#                for data in datas:
+#                    team = team_obj.create_or_update_from_github(
+#                        organization.id, data, full)
+#                    team_ids.append(team.id)
+#                page += 1
+#            organization.team_ids = team_ids

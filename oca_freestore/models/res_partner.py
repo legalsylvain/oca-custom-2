@@ -7,8 +7,8 @@ from openerp import models, fields, api
 
 
 class ResPartner(models.Model):
-    _inherit = 'res.partner'
-    _inherit = ['github.connector']
+    _name = 'res.partner'
+    _inherit = ['res.partner', 'github.connector']
 
     # Column Section
     github_login = fields.Char(string='Github Login', select=True)
