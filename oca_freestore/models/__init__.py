@@ -7,6 +7,7 @@ from . import res_partner
 from . import oca_license
 from . import oca_module
 from . import oca_module_version
+from . import oca_author
 from . import github_organization
 from . import github_organization_serie
 from . import github_repository

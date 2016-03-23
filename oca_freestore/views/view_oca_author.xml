@@ -6,29 +6,27 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 -->
 <openerp><data>
 
-    <record id="view_oca_module_search" model="ir.ui.view">
-        <field name="model">oca.module</field>
+    <record id="view_oca_author_search" model="ir.ui.view">
+        <field name="model">oca.author</field>
         <field name="arch" type="xml">
             <search>
                 <field name="name"/>
-                <field name="author_ids"/>
             </search>
         </field>
     </record>
 
-    <record id="view_oca_module_tree" model="ir.ui.view">
-        <field name="model">oca.module</field>
+    <record id="view_oca_author_tree" model="ir.ui.view">
+        <field name="model">oca.author</field>
         <field name="arch" type="xml">
             <tree>
                 <field name="name"/>
-                <field name="author_ids" widget="many2many_tags"/>
-                <field name="module_version_qty"/>
+                <field name="module_qty"/>
             </tree>
         </field>
     </record>
 
-    <record id="view_oca_module_form" model="ir.ui.view">
-        <field name="model">oca.module</field>
+    <record id="view_oca_author_form" model="ir.ui.view">
+        <field name="model">oca.author</field>
         <field name="arch" type="xml">
             <form>
                 <sheet>
@@ -36,12 +34,12 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
                         <h1><field name="name"/></h1>
                     </div>
                     <div class="oe_clear"/>
-                    <group>
-                        <field name="author_ids" widget="many2many_tags"/>
-                    </group>
                     <notebook>
-                        <page string="Information">
-                            <field name="module_version_ids" colspan="4" nolabel="1"/>
+                        <page string="Modules Information">
+                            <group col="4">
+                                <field name="module_qty"/>
+                            </group>
+                            <field name="module_ids" colspan="4" nolabel="1"/>
                         </page>
                     </notebook>
                 </sheet>
@@ -50,3 +48,7 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
     </record>
 
 </data></openerp>
+
+
+
+

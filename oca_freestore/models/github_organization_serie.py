@@ -8,6 +8,7 @@ from openerp import models, fields
 
 class GithubOrganizationSerie(models.Model):
     _name = 'github.organization.serie'
+    _order = 'name'
 
     # Columns Section
     name = fields.Char(string='Name', required=True)

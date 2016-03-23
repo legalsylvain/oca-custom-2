@@ -15,6 +15,7 @@
         'data/ir_config_parameter.xml',
         'views/view_res_partner.xml',
         'views/view_oca_license.xml',
+        'views/view_oca_author.xml',
         'views/view_oca_module.xml',
         'views/view_oca_module_version.xml',
         'views/view_github_organization.xml',
@@ -28,6 +29,7 @@
     'demo': [
         'demo/res_groups.yml',
         'demo/github_organization.yml',
+        'demo/github_organization_serie.yml',
     ],
     'installable': True,
 }

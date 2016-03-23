@@ -22,9 +22,6 @@ class GithubRepositoryBranch(models.Model):
     _name = 'github.repository.branch'
     _inherit = ['github.connector']
 
-    # FIXME set a configuration setting
-    _LOCAL_PATH = '/workspace/source_code/'
-
     _SELECTION_STATE = [
         ('to_download', 'To Download'),
         ('to_analyze', 'To Analyze'),
@@ -50,9 +47,20 @@ class GithubRepositoryBranch(models.Model):
         related='repository_id.organization_id', store=True,
         readonly=True)
 
+    no_code_at_date = fields.Boolean(
+        string='No Code at the Date', default=False)
+
     last_download_date = fields.Datetime(string='Last Download Date')
 
     last_analyze_date = fields.Datetime(string='Last Analyze Date')
+
+    module_version_ids = fields.One2many(
+        comodel_name='oca.module.version',
+        inverse_name='repository_branch_id', string='Module Versions')
+
+    module_version_qty = fields.Integer(
+        string='Module Versions Quantity',
+        compute='compute_module_version_qty')
 
     # Compute Section
     @api.multi
@@ -62,6 +70,28 @@ class GithubRepositoryBranch(models.Model):
             repository_branch.complete_name =\
                 repository_branch.repository_id.complete_name +\
                 '/' + repository_branch.name
+
+    # Compute Section
+    @api.multi
+    @api.depends(
+        'module_version_ids', 'module_version_ids.repository_branch_id')
+    def compute_module_version_qty(self):
+        for repository_branch in self:
+            repository_branch.module_version_qty =\
+                len(repository_branch.module_version_ids)
+
+    # Action Section
+    @api.multi
+    def button_download_code(self):
+        return self._download_code()
+
+    @api.multi
+    def button_update_code(self):
+        return self._download_code()
+
+    @api.multi
+    def button_analyze_code(self):
+        return self._analyze_code()
 
     # Custom Section
     def create_or_update_from_name(self, repository_id, name):
@@ -73,57 +103,77 @@ class GithubRepositoryBranch(models.Model):
                 'repository_id': repository_id})
         return repository_branch
 
-    @api.multi
-    def button_download_code(self):
+    def _download_code(self):
         for repository_branch in self:
-            complete_path = self._LOCAL_PATH + repository_branch.complete_name
-            if not os.path.exists(complete_path):
+            path = self._get_local_path(repository_branch.complete_name)
+            if not os.path.exists(path):
                 _logger.info(
-                    "Cloning new repository into %s ..." % (complete_path))
+                    "Cloning new repository into %s ..." % (path))
                 # Cloning the repository
-                os.makedirs(complete_path)
+                os.makedirs(path)
                 os.system(
                     "cd %s &&"
                     " git clone https://github.com/%s.git -b %s ." % (
-                        complete_path,
+                        path,
                         repository_branch.repository_id.complete_name,
                         repository_branch.name))
                 repository_branch.write({
                     'last_download_date': datetime.today(),
-                    'state':  'to_analyze',
+                    'state': 'to_analyze',
+                    'no_code_at_date': False,
                     })
             else:
                 # Update repository
                 _logger.info(
-                    "Pulling existing repository %s ..." % (complete_path))
+                    "Pulling existing repository %s ..." % (path))
                 res = check_output(
                     ['git', 'pull', 'origin', repository_branch.name],
-                    cwd=complete_path)
-                if 'up-to-date' not in res:
+                    cwd=path)
+                if repository_branch.state == 'to_download' or\
+                        'up-to-date' not in res:
                     repository_branch.write({
                         'last_download_date': datetime.today(),
-                        'state':  'to_analyze',
+                        'state': 'to_analyze',
+                        'no_code_at_date': False,
                         })
                 else:
                     repository_branch.write({
                         'last_download_date': datetime.today(),
+                        'no_code_at_date': False,
                         })
 
+            # Optional feature, revert to a specific date
+            fixed_date =\
+                repository_branch.repository_id.organization_id.fixed_date
+            if fixed_date:
+                min_age = check_output(
+                    ['git', 'rev-parse', '--until=%s' % (fixed_date)],
+                    cwd=path).replace('\n', '')
+                rev_number = check_output(
+                    ['git', 'rev-list', repository_branch.name, '-1', min_age],
+                    cwd=path).replace('\n', '')
+                if not rev_number:
+                    repository_branch.write({
+                        'no_code_at_date': True,
+                        })
+                else:
+                    check_output(
+                        ['git', 'reset', '--hard', rev_number], cwd=path)
+
     @api.multi
-    def button_analyze_code(self):
+    def _analyze_code(self):
         module_version_obj = self.env['oca.module.version']
         for repository_branch in self:
-            complete_path = self._LOCAL_PATH + repository_branch.complete_name
-            if not os.path.exists(complete_path):
+            path = self._get_local_path(repository_branch.complete_name)
+            if not os.path.exists(path):
                 _logger.warning(
-                    "Unable to analyse %s. Source code not found." % (
-                        complete_path))
+                    "Unable to analyse %s. Source code not found." % (path))
             else:
                 # Scan folder
-                _logger.info("Analyzing repository %s ..." % (complete_path))
-                for module_name in self.listdir(complete_path):
+                _logger.info("Analyzing repository %s ..." % (path))
+                for module_name in self.listdir(path):
                     module_info = load_information_from_description_file(
-                        module_name, complete_path + '/' + module_name)
+                        module_name, path + '/' + module_name)
                     if module_info.get('installable', False):
                         module_info['name'] = module_name
                         module_version_obj.create_or_update_from_manifest(

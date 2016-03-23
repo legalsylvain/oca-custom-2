@@ -48,6 +48,7 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
                     <notebook>
                         <page string="Information">
                             <group col="4">
+                                <field name="fixed_date"/>
                                 <field name="github_login"/>
                                 <field name="email" widget="url"/>
                                 <field name="website_url" widget="url"/>
@@ -62,6 +63,13 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
                         </page>
                         <page string="Members">
                             <field name="public_member_ids" colspan="4" nolabel="1"/>
+                        </page>
+                        <page string="Organization Series">
+                            <field name="organization_serie_ids" colspan="4" nolabel="1">
+                                <tree string="organization_serie_ids" editable="bottom">
+                                    <field name="name"/>
+                                </tree>
+                            </field>
                         </page>
                     </notebook>
                 </sheet>

@@ -40,6 +40,10 @@ class GithubConnector(models.AbstractModel):
         'team_members': {'url': 'teams/%d/members', 'max': 100},
     }
 
+    def _get_local_path(self, repository_branch_complete_name):
+        path = self.env['ir.config_parameter'].get_param('github.local_path')
+        return path + repository_branch_complete_name
+
     def _get_url(self, type, arguments, page):
         if type not in self._TYPE_KEYS:
             raise exceptions.Warning(

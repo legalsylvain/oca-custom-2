@@ -26,11 +26,23 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
         sequence="2"
         action="action_github_oca_module_version"/>
 
+    <menuitem id="menu_github_oca_author"
+        name="OCA Authors"
+        parent="menu_github_source_code"
+        sequence="3"
+        action="action_github_oca_author"/>
+
     <menuitem id="menu_github_oca_license"
         name="OCA Licenses"
         parent="menu_github_source_code"
-        sequence="3"
+        sequence="4"
         action="action_github_oca_license"/>
+
+    <menuitem id="menu_github_oca_author"
+        name="OCA Authors"
+        parent="menu_github_source_code"
+        sequence="4"
+        action="action_github_oca_author"/>
 
     <menuitem id="menu_github_activity"
         parent="menu_github"

@@ -21,12 +21,27 @@ class OcaModule(models.Model):
         string='Module Version Quantity', compute='compute_module_version_qty',
         store=True)
 
+    author_ids = fields.Many2many(
+        string='Authors', comodel_name='oca.author',
+        relation='github_module_author_rel',
+        column1='module_id', column2='author_id', compute='compute_author_ids',
+        store=True)
+
     # Compute Section
     @api.multi
     @api.depends('module_version_ids')
     def compute_module_version_qty(self):
         for module in self:
             module.module_version_qty = len(module.module_version_ids)
+
+    @api.multi
+    @api.depends('module_version_ids.author_ids')
+    def compute_author_ids(self):
+        for module in self:
+            author_ids = []
+            for version in module.module_version_ids:
+                author_ids += version.author_ids.ids
+            module.author_ids = author_ids
 
     # Custom Section
     @api.model
