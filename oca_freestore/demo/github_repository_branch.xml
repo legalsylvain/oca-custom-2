@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright (C) 2016-Today: Odoo Community Association (OCA)
+@author: Sylvain LE GAL (https://twitter.com/legalsylvain)
+License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
+-->
+<openerp><data>
+
+    <record id="oca_ocb_70_repository_branch" model="github.repository.branch">
+        <field name="name">7.0</field>
+        <field name="repository_id" ref="oca_ocb_repository" />
+        <field name="module_paths">./addons/
+./openerp/addons/</field>
+    </record>
+
+    <record id="oca_ocb_80_repository_branch" model="github.repository.branch">
+        <field name="name">8.0</field>
+        <field name="repository_id" ref="oca_ocb_repository" />
+        <field name="module_paths">./addons/
+./openerp/addons/</field>
+    </record>
+
+    <record id="oca_ocb_90_repository_branch" model="github.repository.branch">
+        <field name="name">9.0</field>
+        <field name="repository_id" ref="oca_ocb_repository" />
+        <field name="module_paths">./addons/
+./openerp/addons/</field>
+    </record>
+
+</data></openerp>

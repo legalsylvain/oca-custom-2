@@ -32,6 +32,7 @@ class GithubRepositoryBranch(models.Model):
     name = fields.Char(
         string='Name', select=True, required=True, readonly=True)
 
+    # FIXME, set store=True
     complete_name = fields.Char(
         string='Complete Name', compute='compute_complete_name')
 
@@ -40,7 +41,7 @@ class GithubRepositoryBranch(models.Model):
 
     repository_id = fields.Many2one(
         comodel_name='github.repository', string='Repository',
-        select=True, readonly=True)
+        required=True, select=True, readonly=True, ondelete='cascade')
 
     organization_id = fields.Many2one(
         comodel_name='github.organization', string='Organization',
@@ -53,6 +54,13 @@ class GithubRepositoryBranch(models.Model):
     last_download_date = fields.Datetime(string='Last Download Date')
 
     last_analyze_date = fields.Datetime(string='Last Analyze Date')
+
+    module_paths = fields.Text(
+        string='Module Paths', help="Set here extra relative paths"
+        " you want to scan to find modules. If not set, root path will be"
+        " scanned. One repository per line. Exemple:\n"
+        "./addons/\n"
+        "./openerp/addons/")
 
     module_version_ids = fields.One2many(
         comodel_name='oca.module.version',
@@ -105,6 +113,7 @@ class GithubRepositoryBranch(models.Model):
 
     def _download_code(self):
         for repository_branch in self:
+            print "repository_branch %s" % repository_branch.complete_name
             path = self._get_local_path(repository_branch.complete_name)
             if not os.path.exists(path):
                 _logger.info(
@@ -146,6 +155,7 @@ class GithubRepositoryBranch(models.Model):
             fixed_date =\
                 repository_branch.repository_id.organization_id.fixed_date
             if fixed_date:
+                print "fixed_date : %s " % fixed_date
                 min_age = check_output(
                     ['git', 'rev-parse', '--until=%s' % (fixed_date)],
                     cwd=path).replace('\n', '')
@@ -153,35 +163,49 @@ class GithubRepositoryBranch(models.Model):
                     ['git', 'rev-list', repository_branch.name, '-1', min_age],
                     cwd=path).replace('\n', '')
                 if not rev_number:
+                    print ">>>>> no code"
                     repository_branch.write({
                         'no_code_at_date': True,
                         })
                 else:
-                    check_output(
+                    print "rev_number %s " % rev_number
+                    res = check_output(
                         ['git', 'reset', '--hard', rev_number], cwd=path)
+                    print res
 
     @api.multi
     def _analyze_code(self):
         module_version_obj = self.env['oca.module.version']
         for repository_branch in self:
-            path = self._get_local_path(repository_branch.complete_name)
-            if not os.path.exists(path):
-                _logger.warning(
-                    "Unable to analyse %s. Source code not found." % (path))
+            if repository_branch.module_paths:
+                paths = []
+                for path in repository_branch.module_paths.split('\n'):
+                    if path.strip():
+                        paths.append(self._get_local_path(repository_branch.complete_name) + '/' + path)
             else:
-                # Scan folder
-                _logger.info("Analyzing repository %s ..." % (path))
-                for module_name in self.listdir(path):
-                    module_info = load_information_from_description_file(
-                        module_name, path + '/' + module_name)
-                    if module_info.get('installable', False):
-                        module_info['name'] = module_name
-                        module_version_obj.create_or_update_from_manifest(
-                            module_info, repository_branch)
-                repository_branch.write({
-                    'last_analyze_date': datetime.today(),
-                    'state':  'analyzed',
-                    })
+                paths = [self._get_local_path(repository_branch.complete_name)]
+            for path in paths:
+                if not os.path.exists(path):
+                    _logger.warning(
+                        "Unable to analyse %s. Source code not found." % (path))
+                elif repository_branch.no_code_at_date:
+                    _logger.warning(
+                        "Analysis of %s skipped. (no source code at this date" % (
+                            path))
+                else:
+                    # Scan folder
+                    _logger.info("Analyzing repository %s ..." % (path))
+                    for module_name in self.listdir(path):
+                        module_info = load_information_from_description_file(
+                            module_name, path + '/' + module_name)
+                        if module_info.get('installable', False):
+                            module_info['name'] = module_name
+                            module_version_obj.create_or_update_from_manifest(
+                                module_info, repository_branch)
+                    repository_branch.write({
+                        'last_analyze_date': datetime.today(),
+                        'state':  'analyzed',
+                        })
 
     # Copy Paste from Odoo Core
     # This function is for the time being in another function.

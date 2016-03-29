@@ -9,11 +9,12 @@ from openerp import models, fields, api
 class GithubRepository(models.Model):
     _name = 'github.repository'
     _inherit = ['github.connector']
+    _order = 'organization_id, name'
 
     # Column Section
     organization_id = fields.Many2one(
         comodel_name='github.organization', string='Organization',
-        required=True, select=True, readonly=True)
+        required=True, select=True, readonly=True, ondelete='cascade')
 
     name = fields.Char(
         string='Name', select=True, required=True, readonly=True)

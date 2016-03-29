@@ -58,6 +58,12 @@ class GithubOrganization(models.Model):
         " the code until a fixed date. You should not use this function,"
         " except to do specific reporting")
 
+    ignore_repository_names = fields.Text(
+        string='Ignored Repositories', help="Set here repository names you"
+        " you want to ignore. One repository per line. Exemple:\n"
+        "odoo-community.org\n"
+        "OpenUpgrade\n")
+
     # Compute Section
     @api.multi
     @api.depends('public_member_ids')
@@ -67,7 +73,7 @@ class GithubOrganization(models.Model):
                 len(organization.public_member_ids)
 
     @api.multi
-    @api.depends('repository_ids')
+    @api.depends('repository_ids', 'repository_ids.organization_id')
     def compute_repository_qty(self):
         for organization in self:
             organization.repository_qty =\
@@ -117,11 +123,14 @@ class GithubOrganization(models.Model):
 
             # Get Repositories datas
             repository_ids = []
+            ignored_list = organization.ignore_repository_names and\
+                organization.ignore_repository_names.split("\n") or []
             for data in self.get_datalist_from_github(
                     'organization_repositories', [organization.github_login]):
-                repository = repository_obj.create_or_update_from_github(
-                    organization.id, data, full)
-                repository_ids.append(repository.id)
+                if data['name'] not in ignored_list:
+                    repository = repository_obj.create_or_update_from_github(
+                        organization.id, data, full)
+                    repository_ids.append(repository.id)
             organization.repository_ids = repository_ids
 
             # Get Teams datas

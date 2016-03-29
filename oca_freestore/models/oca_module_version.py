@@ -19,11 +19,11 @@ class OcaModuleVersion(models.Model):
 
     module_id = fields.Many2one(
         comodel_name='oca.module', string='Module', required=True,
-        ondelete='cascade', select=True, auto_join=True, readonly=True)
+        ondelete='cascade', select=True, auto_join=True)
 
     repository_branch_id = fields.Many2one(
         comodel_name='github.repository.branch', string='Repository Branch',
-        readonly=True)
+        readonly=True, required=True, ondelete='cascade')
 
     repository_id = fields.Many2one(
         comodel_name='github.repository', string='Repository',

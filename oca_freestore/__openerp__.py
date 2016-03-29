@@ -27,9 +27,11 @@
         'views/menu.xml',
     ],
     'demo': [
-        'demo/res_groups.yml',
-        'demo/github_organization.yml',
-        'demo/github_organization_serie.yml',
+        'demo/res_groups.xml',
+        'demo/github_organization.xml',
+        'demo/github_organization_serie.xml',
+        'demo/github_repository.xml',
+        'demo/github_repository_branch.xml',
     ],
     'installable': True,
 }

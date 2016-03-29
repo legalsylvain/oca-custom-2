@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright (C) 2016-Today: Odoo Community Association (OCA)
+@author: Sylvain LE GAL (https://twitter.com/legalsylvain)
+License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
+-->
+<openerp><data>
+
+    <record id="oca_ocb_repository" model="github.repository">
+        <field name="name">OCB</field>
+        <field name="complete_name">OCA/OCB</field>
+        <field name="organization_id" ref="oca_organization" />
+    </record>
+
+</data></openerp>
