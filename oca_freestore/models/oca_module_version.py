@@ -54,7 +54,7 @@ class OcaModuleVersion(models.Model):
     website = fields.Char(string='Website', readonly=True)
 
     description_rst = fields.Char(
-        string='RST Description', readonly=True, oldname='description')
+        string='RST Description', readonly=True)
 
     description_rst_html = fields.Html(
         string='HTML the RST Description', readonly=True,
@@ -75,16 +75,22 @@ class OcaModuleVersion(models.Model):
     @api.depends('description_rst')
     def _compute_description_rst_html(self):
         for module_version in self:
-            try:
-                output = publish_string(
-                    source=module_version.description_rst,
-                    settings_overrides=self._SETTING_OVERRIDES,
-                    writer=MyWriter())
-            except:
-                output =\
-                    "<h1 style='color:red;'>" +\
-                    _("Incorrect RST Description") +\
-                    "</h1>"
+            if module_version.description_rst:
+                try:
+                    output = publish_string(
+                        source=module_version.description_rst,
+                        settings_overrides=self._SETTING_OVERRIDES,
+                        writer=MyWriter())
+                except:
+                    output =\
+                        "<h1 style='color:red;'>" +\
+                        _("Incorrect RST Description") +\
+                        "</h1>"
+            else:
+                output = html_sanitize(
+                    "<h1 style='color:gray;'>" +
+                    _("No Version Found") +
+                    "</h1>")
             module_version.description_rst_html = html_sanitize(output)
 
     @api.multi
@@ -125,7 +131,7 @@ class OcaModuleVersion(models.Model):
             'summary': info['summary'],
             'website': info['website'],
             'author': info['author'],
-            'description': info['description'],
+            'description_rst': info['description'],
             'version': info['version'],
             'license_id': oca_license_obj.create_if_not_exist(
                 info['license']).id,
