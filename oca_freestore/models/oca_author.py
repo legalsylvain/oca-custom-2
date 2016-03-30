@@ -8,7 +8,7 @@ from openerp import models, fields, api
 
 class OcaAuthor(models.Model):
     _name = 'oca.author'
-    _order = 'module_qty desc'
+    _order = 'module_qty desc, name'
 
     # Column Section
     name = fields.Char(

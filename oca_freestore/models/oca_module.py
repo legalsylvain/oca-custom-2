@@ -20,8 +20,8 @@ class OcaModule(models.Model):
         string='Versions')
 
     module_version_qty = fields.Integer(
-        string='Module Version Quantity', compute='compute_module_version_qty',
-        store=True)
+        string='Module Version Quantity',
+        compute='_compute_module_version_qty', store=True)
 
     author_ids = fields.Many2many(
         string='Authors', comodel_name='oca.author',
@@ -33,6 +33,12 @@ class OcaModule(models.Model):
         string='Authors List', compute='compute_author', multi='author',
         store=True)
 
+    organization_serie_ids = fields.Many2many(
+        string='Organization Series', comodel_name='github.organization.serie',
+        compute='_compute_organization_serie_ids',
+        relation='github_module_organization_serie_rel',
+        column1='module_id', column2='organization_serie_id', store=True)
+
     description_rst = fields.Char(
         string='RST Description of the last Version', store=True,
         readonly=True, compute='_compute_description', multi='description_rst')
@@ -40,6 +46,16 @@ class OcaModule(models.Model):
     description_rst_html = fields.Html(
         string='HTML of the RST Description of the last Version', store=True,
         readonly=True, compute='_compute_description', multi='description_rst')
+
+    dependence_module_version_ids = fields.Many2many(
+        comodel_name='oca.module.version',
+        string='Module Versions that depend on this module',
+        relation='module_version_dependency_rel',
+        column1='dependency_module_id', column2='module_version_id')
+
+    dependence_module_version_qty = fields.Integer(
+        string='Quantity of Module Versions that depend on this module',
+        compute='_compute_dependence_module_version_qty', store=True)
 
     # Compute Section
     @api.multi
@@ -63,8 +79,17 @@ class OcaModule(models.Model):
                     "</h1>")
 
     @api.multi
+    @api.depends(
+        'dependence_module_version_ids',
+        'dependence_module_version_ids.dependency_module_ids')
+    def _compute_dependence_module_version_qty(self):
+        for module in self:
+            module.dependence_module_version_qty =\
+                len(module.dependence_module_version_ids)
+
+    @api.multi
     @api.depends('module_version_ids')
-    def compute_module_version_qty(self):
+    def _compute_module_version_qty(self):
         for module in self:
             module.module_version_qty = len(module.module_version_ids)
 
@@ -78,6 +103,18 @@ class OcaModule(models.Model):
             authors = set(authors)
             module.author_ids = [x.id for x in authors]
             module.author_list = ', '.join(sorted([x.name for x in authors]))
+
+    @api.multi
+    @api.depends(
+        'module_version_ids', 'module_version_ids.organization_serie_id')
+    def _compute_organization_serie_ids(self):
+        for module in self:
+            organization_series = []
+            for version in module.module_version_ids:
+                organization_series += version.organization_serie_id
+            module.organization_serie_ids = [
+                version.organization_serie_id.id
+                for version in module.module_version_ids]
 
     # Custom Section
     @api.model

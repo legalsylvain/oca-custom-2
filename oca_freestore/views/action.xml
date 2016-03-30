@@ -24,7 +24,7 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
     </record>
 
     <record id="action_github_oca_license" model="ir.actions.act_window">
-        <field name="name">OCA Licenses</field>
+        <field name="name">Licenses</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">oca.license</field>
         <field name="view_type">form</field>
@@ -32,9 +32,25 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
     </record>
 
     <record id="action_github_oca_author" model="ir.actions.act_window">
-        <field name="name">OCA Authors</field>
+        <field name="name">Authors</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">oca.author</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="action_github_oca_python_lib" model="ir.actions.act_window">
+        <field name="name">Python Libs</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">oca.python.lib</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="action_github_oca_bin_lib" model="ir.actions.act_window">
+        <field name="name">Bin Libs</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">oca.bin.lib</field>
         <field name="view_type">form</field>
         <field name="view_mode">tree,form</field>
     </record>

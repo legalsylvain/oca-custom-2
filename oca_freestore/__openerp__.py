@@ -16,6 +16,8 @@
         'views/view_res_partner.xml',
         'views/view_oca_license.xml',
         'views/view_oca_author.xml',
+        'views/view_oca_python_lib.xml',
+        'views/view_oca_bin_lib.xml',
         'views/view_oca_module.xml',
         'views/view_oca_module_version.xml',
         'views/view_github_organization.xml',

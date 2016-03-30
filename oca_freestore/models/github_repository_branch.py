@@ -33,9 +33,8 @@ class GithubRepositoryBranch(models.Model):
     name = fields.Char(
         string='Name', select=True, required=True, readonly=True)
 
-    # FIXME, set store=True
     complete_name = fields.Char(
-        string='Complete Name', compute='compute_complete_name', store=True)
+        string='Complete Name', compute='_compute_complete_name', store=True)
 
     state = fields.Selection(
         string='State', selection=_SELECTION_STATE, default='to_download')
@@ -74,13 +73,17 @@ class GithubRepositoryBranch(models.Model):
     # Compute Section
     @api.multi
     @api.depends('name', 'repository_id.complete_name')
-    def compute_complete_name(self):
+    def _compute_complete_name(self):
         for repository_branch in self:
             repository_branch.complete_name =\
                 repository_branch.repository_id.complete_name +\
                 '/' + repository_branch.name
 
     # Compute Section
+    @api.one
+    def name_get(self):
+        return [self.id, self.complete_name]
+
     @api.multi
     @api.depends(
         'module_version_ids', 'module_version_ids.repository_branch_id')
@@ -209,6 +212,7 @@ class GithubRepositoryBranch(models.Model):
                         'last_analyze_date': datetime.today(),
                         'state':  'analyzed',
                         })
+            self._cr.commit()
 
     # Copy Paste from Odoo Core
     # This function is for the time being in another function.

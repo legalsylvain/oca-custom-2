@@ -28,7 +28,7 @@ class OcaModuleVersion(models.Model):
         select=True)
 
     complete_name = fields.Char(
-        string='Complete Name', compute='compute_complete_name', store=True)
+        string='Complete Name', compute='_compute_complete_name', store=True)
 
     module_id = fields.Many2one(
         comodel_name='oca.module', string='Module', required=True,
@@ -47,30 +47,63 @@ class OcaModuleVersion(models.Model):
         comodel_name='github.organization.serie', string='Organization Serie',
         compute='_compute_organization_serie_id', readonly=True, store=True)
 
+    license = fields.Char(string='License (Manifest)', readonly=True)
+
     license_id = fields.Many2one(
-        comodel_name='oca.license', string='License', readonly=True)
+        comodel_name='oca.license', string='License', readonly=True,
+        compute='_compute_license_id', store=True)
 
-    summary = fields.Char(string='Summary', readonly=True)
+    summary = fields.Char(string='Summary (Manifest)', readonly=True)
 
-    website = fields.Char(string='Website', readonly=True)
+    depends = fields.Char(string='Dependencies (Manifest)', readonly=True)
+
+    dependency_module_ids = fields.Many2many(
+        comodel_name='oca.module', string='Dependencies',
+        relation='module_version_dependency_rel', column1='module_version_id',
+        column2='dependency_module_id',
+        compute='_compute_dependency_module_ids', store=True)
+
+    website = fields.Char(string='Website (Manifest)', readonly=True)
+
+    external_dependencies = fields.Char(
+        string='External Dependencies (Manifest)', readonly=True)
 
     description_rst = fields.Char(
-        string='RST Description', readonly=True)
+        string='RST Description (Manifest)', readonly=True)
 
     description_rst_html = fields.Html(
         string='HTML the RST Description', readonly=True,
         compute='_compute_description_rst_html', store=True)
 
-    version = fields.Char(string='Version', readonly=True)
+    version = fields.Char(string='Version (Manifest)', readonly=True)
 
-    author = fields.Char(string='Author', readonly=True)
+    author = fields.Char(string='Author (Manifest)', readonly=True)
 
     author_ids = fields.Many2many(
         string='Authors', comodel_name='oca.author',
         relation='github_module_version_author_rel',
-        column1='module_version_id', column2='author_id')
+        column1='module_version_id', column2='author_id',
+        compute='_compute_author_ids', store=True)
+
+    python_lib_ids = fields.Many2many(
+        comodel_name='oca.python.lib', string='Python Lib Dependencies',
+        relation='module_version_python_lib_rel', column1='module_version_id',
+        column2='python_lib_id', multi='lib', compute='_compute_lib',
+        store=True)
+
+    bin_lib_ids = fields.Many2many(
+        comodel_name='oca.bin.lib', string='Bin Lib Dependencies',
+        relation='module_version_bin_lib_rel', column1='module_version_id',
+        column2='bin_lib_id', multi='lib', compute='_compute_lib', store=True)
 
     # Compute Section
+    @api.multi
+    @api.depends('name', 'repository_branch_id.complete_name')
+    def _compute_complete_name(self):
+        for module_version in self:
+            module_version.complete_name =\
+                module_version.repository_branch_id.complete_name +\
+                '/' + module_version.name
 
     @api.multi
     @api.depends('description_rst')
@@ -95,12 +128,55 @@ class OcaModuleVersion(models.Model):
             module_version.description_rst_html = html_sanitize(output)
 
     @api.multi
-    @api.depends('name', 'repository_branch_id.complete_name')
-    def compute_complete_name(self):
+    @api.depends('depends')
+    def _compute_dependency_module_ids(self):
+        module_obj = self.env['oca.module']
+        modules = []
         for module_version in self:
-            module_version.complete_name =\
-                module_version.repository_branch_id.complete_name +\
-                '/' + module_version.name
+            for module_name in module_version.depends.split(','):
+                if module_name:
+                    # Weird case, some times 'depends' field is empty
+                    modules.append(module_obj.create_if_not_exist(module_name))
+            module_version.dependency_module_ids = [x.id for x in modules]
+
+    @api.multi
+    @api.depends('external_dependencies')
+    def _compute_lib(self):
+        python_lib_obj = self.env['oca.python.lib']
+        bin_lib_obj = self.env['oca.bin.lib']
+        python_libs = []
+        bin_libs = []
+        for module_version in self:
+            my_eval = eval(module_version.external_dependencies)
+            for python_name in my_eval.get('python', []):
+                python_libs.append(
+                    python_lib_obj.create_if_not_exist(python_name))
+            module_version.python_lib_ids = [x.id for x in python_libs]
+            for bin_name in my_eval.get('bin', []):
+                bin_libs.append(bin_lib_obj.create_if_not_exist(bin_name))
+            module_version.bin_lib_ids = [x.id for x in bin_libs]
+
+    @api.multi
+    @api.depends('license')
+    def _compute_license_id(self):
+        oca_license_obj = self.env['oca.license']
+        for module_version in self:
+            if module_version.license:
+                module_version.license_id =\
+                    oca_license_obj.create_if_not_exist(
+                        module_version.license).id
+
+    @api.multi
+    @api.depends('author')
+    def _compute_author_ids(self):
+        oca_author_obj = self.env['oca.author']
+        for module_version in self:
+            author_ids = []
+            for item in module_version.author.split(','):
+                if item:
+                    author_ids.append(
+                        oca_author_obj.create_if_not_exist(item.strip()).id)
+            module_version.author_ids = author_ids
 
     @api.multi
     @api.depends(
@@ -119,26 +195,21 @@ class OcaModuleVersion(models.Model):
     # Custom Section
     @api.model
     def manifest_2_odoo(self, info, repository_branch, module):
-        oca_license_obj = self.env['oca.license']
-        oca_author_obj = self.env['oca.author']
-        author_ids = []
-        author_lst = (type(info['author']) == list) and\
-            info['author'] or \
+        author_list =\
+            (type(info['author']) == list) and info['author'] or\
             info['author'].split(',')
-        for author in author_lst:
-            author_ids.append(
-                oca_author_obj.create_if_not_exist(author.strip()).id)
         res = {
             'summary': info['summary'],
             'website': info['website'],
-            'author': info['author'],
+            'author': ','.join(
+                [x.strip() for x in sorted(author_list) if x.strip()]),
+            'depends': ','.join([x for x in sorted(info['depends']) if x]),
             'description_rst': info['description'],
+            'external_dependencies': info.get('external_dependencies', {}),
             'version': info['version'],
-            'license_id': oca_license_obj.create_if_not_exist(
-                info['license']).id,
+            'license': info['license'],
             'repository_branch_id': repository_branch.id,
             'module_id': module.id,
-            'author_ids': [[6, False, author_ids]],
         }
         return res
 

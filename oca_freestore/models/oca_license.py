@@ -8,7 +8,7 @@ from openerp import models, fields, api
 
 class OcaLicense(models.Model):
     _name = 'oca.license'
-    _order = 'module_version_qty desc'
+    _order = 'module_version_qty desc, name'
 
     # Column Section
     name = fields.Char(

@@ -26,27 +26,46 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
         sequence="2"
         action="action_github_oca_module_version"/>
 
+
+    <menuitem id="menu_github_copyright"
+        parent="menu_github"
+        sequence="20"
+        name="Copyright"/>
+
     <menuitem id="menu_github_oca_author"
-        name="OCA Authors"
-        parent="menu_github_source_code"
+        name="Authors"
+        parent="menu_github_copyright"
         sequence="3"
         action="action_github_oca_author"/>
 
     <menuitem id="menu_github_oca_license"
-        name="OCA Licenses"
-        parent="menu_github_source_code"
+        name="Licenses"
+        parent="menu_github_copyright"
         sequence="4"
         action="action_github_oca_license"/>
 
-    <menuitem id="menu_github_oca_author"
-        name="OCA Authors"
-        parent="menu_github_source_code"
-        sequence="4"
-        action="action_github_oca_author"/>
+
+    <menuitem id="menu_github_dependency"
+        parent="menu_github"
+        sequence="30"
+        name="External Dependencies"/>
+
+    <menuitem id="menu_github_oca_python_lib"
+        name="Python Libs"
+        parent="menu_github_dependency"
+        sequence="1"
+        action="action_github_oca_python_lib"/>
+
+    <menuitem id="menu_github_oca_bin_lib"
+        name="Bin Libs"
+        parent="menu_github_dependency"
+        sequence="2"
+        action="action_github_oca_bin_lib"/>
+
 
     <menuitem id="menu_github_activity"
         parent="menu_github"
-        sequence="20"
+        sequence="50"
         name="Github Community"/>
 
     <menuitem id="menu_github_user"
@@ -75,7 +94,7 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
     <menuitem id="menu_github_setting"
         parent="menu_github"
-        sequence="50"
+        sequence="100"
         name="Github Settings"/>
 
     <menuitem id="menu_github_organization"
