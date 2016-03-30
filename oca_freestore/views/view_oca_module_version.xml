@@ -12,7 +12,7 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
             <search>
                 <field name="name"/>
                 <field name="summary"/>
-                <field name="description"/>
+                <field name="description_rst"/>
                 <field name="module_id"/>
                 <field name="repository_branch_id"/>
                 <field name="repository_id"/>
@@ -43,7 +43,7 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
                 <sheet>
                     <div class="oe_title">
                         <h1><field name="complete_name"/></h1>
-                    </div>
+                    </div><br/>
                         <h3 class="oe_fade">
                             <field name="summary" class="oe_inline"/>
                         </h3>
@@ -61,7 +61,7 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
                                 <field name="organization_serie_id"/>
                                 <field name="author_ids" widget="many2many_tags"/>
                             </group>
-                            <field name="description" colspan="4" nolabel="1"/>
+                            <field name="description_rst_html" colspan="4" nolabel="1" class="oe_styling_v8"/>
                         </page>
                     </notebook>
                 </sheet>

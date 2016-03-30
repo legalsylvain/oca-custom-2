@@ -3,11 +3,23 @@
 # @author: Sylvain LE GAL (https://twitter.com/legalsylvain)
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
-from openerp import models, fields, api
+from docutils.core import publish_string
+
+from openerp import models, fields, api, _
+from openerp.tools import html_sanitize
+from openerp.addons.base.module.module import MyWriter
 
 
 class OcaModuleVersion(models.Model):
     _name = 'oca.module.version'
+
+    # Constant Section
+    _SETTING_OVERRIDES = {
+        'embed_stylesheet': False,
+        'doctitle_xform': False,
+        'output_encoding': 'unicode',
+        'xml_declaration': False,
+    }
 
     # Column Section
     name = fields.Char(
@@ -41,7 +53,12 @@ class OcaModuleVersion(models.Model):
 
     website = fields.Char(string='Website', readonly=True)
 
-    description = fields.Char(string='Description', readonly=True)
+    description_rst = fields.Char(
+        string='RST Description', readonly=True, oldname='description')
+
+    description_rst_html = fields.Html(
+        string='HTML the RST Description', readonly=True,
+        compute='_compute_description_rst_html', store=True)
 
     version = fields.Char(string='Version', readonly=True)
 
@@ -53,6 +70,23 @@ class OcaModuleVersion(models.Model):
         column1='module_version_id', column2='author_id')
 
     # Compute Section
+
+    @api.multi
+    @api.depends('description_rst')
+    def _compute_description_rst_html(self):
+        for module_version in self:
+            try:
+                output = publish_string(
+                    source=module_version.description_rst,
+                    settings_overrides=self._SETTING_OVERRIDES,
+                    writer=MyWriter())
+            except:
+                output =\
+                    "<h1 style='color:red;'>" +\
+                    _("Incorrect RST Description") +\
+                    "</h1>"
+            module_version.description_rst_html = html_sanitize(output)
+
     @api.multi
     @api.depends('name', 'repository_branch_id.complete_name')
     def compute_complete_name(self):

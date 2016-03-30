@@ -181,17 +181,19 @@ class GithubRepositoryBranch(models.Model):
                 paths = []
                 for path in repository_branch.module_paths.split('\n'):
                     if path.strip():
-                        paths.append(self._get_local_path(repository_branch.complete_name) + '/' + path)
+                        paths.append(self._get_local_path(
+                            repository_branch.complete_name) + '/' + path)
             else:
                 paths = [self._get_local_path(repository_branch.complete_name)]
             for path in paths:
                 if not os.path.exists(path):
                     _logger.warning(
-                        "Unable to analyse %s. Source code not found." % (path))
+                        "Unable to analyse %s. Source code not found." % (
+                            path))
                 elif repository_branch.no_code_at_date:
                     _logger.warning(
-                        "Analysis of %s skipped. (no source code at this date" % (
-                            path))
+                        "Analysis of %s skipped."
+                        "(no source code at this date)" % (path))
                 else:
                     # Scan folder
                     _logger.info("Analyzing repository %s ..." % (path))

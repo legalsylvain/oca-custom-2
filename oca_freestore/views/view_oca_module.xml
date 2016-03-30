@@ -12,6 +12,7 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
             <search>
                 <field name="name"/>
                 <field name="author_ids"/>
+                <field name="description_rst"/>
             </search>
         </field>
     </record>
@@ -42,6 +43,7 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
                     <notebook>
                         <page string="Information">
                             <field name="module_version_ids" colspan="4" nolabel="1"/>
+                            <field name="description_rst_html" colspan="4" nolabel="1" class="oe_styling_v8"/>
                         </page>
                     </notebook>
                 </sheet>
