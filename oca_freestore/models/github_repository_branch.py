@@ -21,6 +21,7 @@ _logger = logging.getLogger(__name__)
 class GithubRepositoryBranch(models.Model):
     _name = 'github.repository.branch'
     _inherit = ['github.connector']
+    _order = 'complete_name'
 
     _SELECTION_STATE = [
         ('to_download', 'To Download'),
@@ -34,7 +35,7 @@ class GithubRepositoryBranch(models.Model):
 
     # FIXME, set store=True
     complete_name = fields.Char(
-        string='Complete Name', compute='compute_complete_name')
+        string='Complete Name', compute='compute_complete_name', store=True)
 
     state = fields.Selection(
         string='State', selection=_SELECTION_STATE, default='to_download')

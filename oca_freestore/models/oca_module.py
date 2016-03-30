@@ -9,6 +9,7 @@ from openerp.tools import html_sanitize
 
 class OcaModule(models.Model):
     _name = 'oca.module'
+    _order = 'name'
 
     # Column Section
     name = fields.Char(

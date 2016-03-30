@@ -8,6 +8,7 @@ from openerp import models, fields, api
 
 class OcaLicense(models.Model):
     _name = 'oca.license'
+    _order = 'module_version_qty desc'
 
     # Column Section
     name = fields.Char(
@@ -19,7 +20,7 @@ class OcaLicense(models.Model):
 
     module_version_qty = fields.Integer(
         string='Module Versions Quantity',
-        compute='compute_module_version_qty')
+        compute='compute_module_version_qty', store=True)
 
     # Compute Section
     @api.multi

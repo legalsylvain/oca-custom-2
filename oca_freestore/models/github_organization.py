@@ -9,6 +9,7 @@ from openerp import models, fields, api
 class GithubOrganization(models.Model):
     _name = 'github.organization'
     _inherit = ['github.connector']
+    _order = 'name'
 
     # Columns Section
     name = fields.Char(string='Organization Name', required=True)

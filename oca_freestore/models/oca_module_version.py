@@ -12,6 +12,7 @@ from openerp.addons.base.module.module import MyWriter
 
 class OcaModuleVersion(models.Model):
     _name = 'oca.module.version'
+    _order = 'complete_name'
 
     # Constant Section
     _SETTING_OVERRIDES = {
