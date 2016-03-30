@@ -31,8 +31,7 @@ class OcaAuthor(models.Model):
     @api.depends('module_ids')
     def compute_module_qty(self):
         for author in self:
-            author.module_qty =\
-                len(author.module_ids)
+            author.module_qty = len(author.module_ids)
 
     # Custom Section
     @api.model
