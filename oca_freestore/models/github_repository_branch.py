@@ -182,7 +182,7 @@ class GithubRepositoryBranch(models.Model):
         module_version_obj = self.env['oca.module.version']
         for repository_branch in self:
             print ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-            print complete_name
+            print repository_branch.complete_name
             if repository_branch.module_paths:
                 paths = []
                 for path in repository_branch.module_paths.split('\n'):
