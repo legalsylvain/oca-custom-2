@@ -181,6 +181,8 @@ class GithubRepositoryBranch(models.Model):
     def _analyze_code(self):
         module_version_obj = self.env['oca.module.version']
         for repository_branch in self:
+            print ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+            print complete_name
             if repository_branch.module_paths:
                 paths = []
                 for path in repository_branch.module_paths.split('\n'):

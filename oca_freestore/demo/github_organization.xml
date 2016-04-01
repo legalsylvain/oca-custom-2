@@ -16,7 +16,8 @@ odoo-community.org
 odoo-sphinx-autodoc
 OpenUpgrade
 openupgradelib
-pylint-odoo]]></field>
+pylint-odoo
+l10n_peru]]></field>
     </record>
 
 
