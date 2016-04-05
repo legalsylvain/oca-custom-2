@@ -55,7 +55,8 @@ class OcaModule(models.Model):
 
     dependence_module_version_qty = fields.Integer(
         string='Quantity of Module Versions that depend on this module',
-        compute='_compute_dependence_module_version_qty', store=True)
+        compute='_compute_dependence_module_version_qty')
+    # , store=True FIXME
 
     # Compute Section
     @api.multi

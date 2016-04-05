@@ -61,7 +61,8 @@ class OcaModuleVersion(models.Model):
         comodel_name='oca.module', string='Dependencies',
         relation='module_version_dependency_rel', column1='module_version_id',
         column2='dependency_module_id',
-        compute='_compute_dependency_module_ids', store=True)
+        compute='_compute_dependency_module_ids')
+        # , store=True FIXME
 
     website = fields.Char(string='Website (Manifest)', readonly=True)
 
@@ -100,11 +101,11 @@ class OcaModuleVersion(models.Model):
     @api.multi
     def unlink(self):
         # Analyzed repository branches should be reanalyzed
-        repository_branch_obj = self.env['github.repository.branch']
-        repository_branch_obj.search([
-            ('id', 'in', self.mapped('repository_branch_id').ids),
-            ('state', '=', 'analyzed')]).write({'state': 'to_analyze'})
-
+        if not self._context.get('dont_change_repository_branch_state', False):
+            repository_branch_obj = self.env['github.repository.branch']
+            repository_branch_obj.search([
+                ('id', 'in', self.mapped('repository_branch_id').ids),
+                ('state', '=', 'analyzed')]).write({'state': 'to_analyze'})
         return super(OcaModuleVersion, self).unlink()
 
     # Compute Section
@@ -158,13 +159,17 @@ class OcaModuleVersion(models.Model):
         python_libs = []
         bin_libs = []
         for module_version in self:
+            python_libs = []
+            bin_libs = []
             my_eval = eval(module_version.external_dependencies)
             for python_name in my_eval.get('python', []):
                 python_libs.append(
                     python_lib_obj.create_if_not_exist(python_name))
-            module_version.python_lib_ids = [x.id for x in python_libs]
             for bin_name in my_eval.get('bin', []):
-                bin_libs.append(bin_lib_obj.create_if_not_exist(bin_name))
+                bin_libs.append(
+                    bin_lib_obj.create_if_not_exist(bin_name))
+
+            module_version.python_lib_ids = [x.id for x in python_libs]
             module_version.bin_lib_ids = [x.id for x in bin_libs]
 
     @api.multi

@@ -18,6 +18,7 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
                 <field name="repository_branch_id"/>
                 <field name="repository_id"/>
                 <field name="license_id"/>
+                <field name="author_ids"/>
                 <field name="organization_serie_id"/>
                 <filter string="License" context="{'group_by' : 'license_id'}"/>
                 <filter string="Module" context="{'group_by' : 'module_id'}"/>
@@ -77,6 +78,7 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
                                 <field name="license"/>
                                 <field name="website"/>
                                 <field name="depends"/>
+                                <field name="external_dependencies" />
                                 <newline />
                                 <field name="description_rst" nolabel="1" colspan="4" />
                             </group>

@@ -54,11 +54,6 @@ class GithubOrganization(models.Model):
         comodel_name='github.organization.serie',
         inverse_name='organization_id')
 
-    fixed_date = fields.Date(
-        string='Fixed Download Date', help="Set a Date if you want to download"
-        " the code until a fixed date. You should not use this function,"
-        " except to do specific reporting")
-
     ignore_repository_names = fields.Text(
         string='Ignored Repositories', help="Set here repository names you"
         " you want to ignore. One repository per line. Exemple:\n"

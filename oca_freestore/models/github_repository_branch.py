@@ -140,9 +140,9 @@ class GithubRepositoryBranch(models.Model):
                         cwd=path)
                 except:
                     raise exceptions.Warning(
-                        _("Git Access Error"),  
+                        _("Git Access Error"),
                         _("Unable to access to pull repository in %s.") % (
-                            path))   
+                            path))
                 if repository_branch.state == 'to_download' or\
                         'up-to-date' not in res:
                     repository_branch.write({
@@ -159,6 +159,13 @@ class GithubRepositoryBranch(models.Model):
     def _analyze_code(self):
         module_version_obj = self.env['oca.module.version']
         for repository_branch in self:
+            # Delete all associated module versions
+            module_versions = module_version_obj.search([
+                ('repository_branch_id', '=', repository_branch.id)])
+            module_versions.with_context(
+                dont_change_repository_branch_state=True).unlink()
+
+            # Compute path(s) to analyze
             if repository_branch.module_paths:
                 paths = []
                 for path in repository_branch.module_paths.split('\n'):
@@ -167,6 +174,7 @@ class GithubRepositoryBranch(models.Model):
                             repository_branch.complete_name) + '/' + path)
             else:
                 paths = [self._get_local_path(repository_branch.complete_name)]
+            # Scan each path, if exists
             for path in paths:
                 if not os.path.exists(path):
                     _logger.warning(
@@ -178,10 +186,13 @@ class GithubRepositoryBranch(models.Model):
                     for module_name in self.listdir(path):
                         module_info = load_information_from_description_file(
                             module_name, path + '/' + module_name)
+                        # Create module version, if the module is installable
+                        # in the serie
                         if module_info.get('installable', False):
                             module_info['name'] = module_name
                             module_version_obj.create_or_update_from_manifest(
                                 module_info, repository_branch)
+                        self._cr.commit()
                     repository_branch.write({
                         'last_analyze_date': datetime.today(),
                         'state':  'analyzed',
