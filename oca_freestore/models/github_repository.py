@@ -3,7 +3,11 @@
 # @author: Sylvain LE GAL (https://twitter.com/legalsylvain)
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
+import logging
+
 from openerp import models, fields, api
+
+_logger = logging.getLogger(__name__)
 
 
 class GithubRepository(models.Model):
@@ -72,8 +76,15 @@ class GithubRepository(models.Model):
         # Get Branches Data
         branch_datas = self.get_datalist_from_github(
             'repository_branches', [data['full_name']])
+        correct_series =\
+            repository.organization_id.organization_serie_ids.mapped('name')
         for branch_data in branch_datas:
-            repository_branch_obj.create_or_update_from_name(
-                repository.id, branch_data['name'])
+            if branch_data['name'] in correct_series:
+                repository_branch_obj.create_or_update_from_name(
+                    repository.id, branch_data['name'])
+            else:
+                _logger.warning(
+                    "the branch '%s'/'%s' has been ignored." % (
+                        repository.complete_name, branch_data['name']))
 
         return repository
