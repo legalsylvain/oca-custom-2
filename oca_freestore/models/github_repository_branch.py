@@ -10,11 +10,10 @@ from subprocess import check_output
 from datetime import datetime
 from os.path import join as opj
 
-from openerp import models, fields, api
+from openerp import models, fields, api, exceptions, _
 
 from openerp.modules import load_information_from_description_file
 from openerp.modules.module import MANIFEST
-
 
 _logger = logging.getLogger(__name__)
 
@@ -135,9 +134,15 @@ class GithubRepositoryBranch(models.Model):
                 # Update repository
                 _logger.info(
                     "Pulling existing repository %s ..." % (path))
-                res = check_output(
-                    ['git', 'pull', 'origin', repository_branch.name],
-                    cwd=path)
+                try:
+                    res = check_output(
+                        ['git', 'pull', 'origin', repository_branch.name],
+                        cwd=path)
+                except:
+                    raise exceptions.Warning(
+                        _("Git Access Error"),  
+                        _("Unable to access to pull repository in %s.") % (
+                            path))   
                 if repository_branch.state == 'to_download' or\
                         'up-to-date' not in res:
                     repository_branch.write({
@@ -148,6 +153,7 @@ class GithubRepositoryBranch(models.Model):
                     repository_branch.write({
                         'last_download_date': datetime.today(),
                         })
+            self._cr.commit()
 
     @api.multi
     def _analyze_code(self):
