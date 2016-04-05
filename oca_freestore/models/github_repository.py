@@ -61,8 +61,8 @@ class GithubRepository(models.Model):
             return repository
 
         # Get Full Datas from Github
-        odoo_data = self.github_2_odoo(self.get_data_from_github(
-                'repository', [data['full_name']]))
+        odoo_data = self.github_2_odoo(
+            self.get_data_from_github('repository', [data['full_name']]))
         odoo_data.update({'organization_id': organization_id})
         if not repository:
             repository = self.create(odoo_data)

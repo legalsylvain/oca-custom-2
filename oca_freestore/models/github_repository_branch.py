@@ -48,9 +48,6 @@ class GithubRepositoryBranch(models.Model):
         related='repository_id.organization_id', store=True,
         readonly=True)
 
-    no_code_at_date = fields.Boolean(
-        string='No Code at the Date', default=False)
-
     last_download_date = fields.Datetime(string='Last Download Date')
 
     last_analyze_date = fields.Datetime(string='Last Analyze Date')
@@ -117,7 +114,6 @@ class GithubRepositoryBranch(models.Model):
 
     def _download_code(self):
         for repository_branch in self:
-            print "repository_branch %s" % repository_branch.complete_name
             path = self._get_local_path(repository_branch.complete_name)
             if not os.path.exists(path):
                 _logger.info(
@@ -133,7 +129,6 @@ class GithubRepositoryBranch(models.Model):
                 repository_branch.write({
                     'last_download_date': datetime.today(),
                     'state': 'to_analyze',
-                    'no_code_at_date': False,
                     })
             else:
                 # Update repository
@@ -147,42 +142,16 @@ class GithubRepositoryBranch(models.Model):
                     repository_branch.write({
                         'last_download_date': datetime.today(),
                         'state': 'to_analyze',
-                        'no_code_at_date': False,
                         })
                 else:
                     repository_branch.write({
                         'last_download_date': datetime.today(),
-                        'no_code_at_date': False,
                         })
-
-            # Optional feature, revert to a specific date
-            fixed_date =\
-                repository_branch.repository_id.organization_id.fixed_date
-            if fixed_date:
-                print "fixed_date : %s " % fixed_date
-                min_age = check_output(
-                    ['git', 'rev-parse', '--until=%s' % (fixed_date)],
-                    cwd=path).replace('\n', '')
-                rev_number = check_output(
-                    ['git', 'rev-list', repository_branch.name, '-1', min_age],
-                    cwd=path).replace('\n', '')
-                if not rev_number:
-                    print ">>>>> no code"
-                    repository_branch.write({
-                        'no_code_at_date': True,
-                        })
-                else:
-                    print "rev_number %s " % rev_number
-                    res = check_output(
-                        ['git', 'reset', '--hard', rev_number], cwd=path)
-                    print res
 
     @api.multi
     def _analyze_code(self):
         module_version_obj = self.env['oca.module.version']
         for repository_branch in self:
-            print ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-            print repository_branch.complete_name
             if repository_branch.module_paths:
                 paths = []
                 for path in repository_branch.module_paths.split('\n'):
@@ -196,10 +165,6 @@ class GithubRepositoryBranch(models.Model):
                     _logger.warning(
                         "Unable to analyse %s. Source code not found." % (
                             path))
-                elif repository_branch.no_code_at_date:
-                    _logger.warning(
-                        "Analysis of %s skipped."
-                        "(no source code at this date)" % (path))
                 else:
                     # Scan folder
                     _logger.info("Analyzing repository %s ..." % (path))

@@ -96,6 +96,17 @@ class OcaModuleVersion(models.Model):
         relation='module_version_bin_lib_rel', column1='module_version_id',
         column2='bin_lib_id', multi='lib', compute='_compute_lib', store=True)
 
+    # Overload Section
+    @api.multi
+    def unlink(self):
+        # Analyzed repository branches should be reanalyzed
+        repository_branch_obj = self.env['github.repository.branch']
+        repository_branch_obj.search([
+            ('id', 'in', self.mapped('repository_branch_id').ids),
+            ('state', '=', 'analyzed')]).write({'state': 'to_analyze'})
+
+        return super(OcaModuleVersion, self).unlink()
+
     # Compute Section
     @api.multi
     @api.depends('name', 'repository_branch_id.complete_name')
@@ -213,7 +224,6 @@ class OcaModuleVersion(models.Model):
         }
         return res
 
-    # Custom Section
     @api.model
     def create_or_update_from_manifest(self, info, repository_branch):
         module_obj = self.env['oca.module']

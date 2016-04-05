@@ -50,8 +50,8 @@ class ResPartner(models.Model):
     def github_2_odoo(self, data):
         return {
             'name':
-                data['name'] and data['name'] or
-                '%s (Github)' % data['login'],
+            data['name'] and data['name'] or
+            '%s (Github)' % data['login'],
             'github_login': data['login'],
             'website': data['blog'],
             'email': data['email'],
