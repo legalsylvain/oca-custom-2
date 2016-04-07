@@ -6,6 +6,7 @@
 import logging
 import os
 
+from git import Repo
 from subprocess import check_output
 from datetime import datetime
 from os.path import join as opj
@@ -34,7 +35,8 @@ class GithubRepositoryBranch(models.Model):
         string='Name', select=True, required=True, readonly=True)
 
     complete_name = fields.Char(
-        string='Complete Name', compute='_compute_complete_name', store=True)
+        string='Complete Name', store=True, multi='complete_name',
+        compute='_compute_multi_from_complete_name')
 
     state = fields.Selection(
         string='State', selection=_SELECTION_STATE, default='to_download')
@@ -67,19 +69,81 @@ class GithubRepositoryBranch(models.Model):
         string='Module Versions Quantity',
         compute='compute_module_version_qty')
 
+    coverage_url = fields.Char(
+        string='Coverage Url', store=True, multi='complete_name',
+        compute='_compute_multi_from_complete_name')
+
+    coverage_image_url = fields.Char(
+        string='Coverage Image Url', store=True, multi='complete_name',
+        compute='_compute_multi_from_complete_name')
+
+    integration_service_url = fields.Char(
+        string='Integration Service Url', store=True, multi='complete_name',
+        compute='_compute_multi_from_complete_name')
+
+    integration_service_image_url = fields.Char(
+        string='Integration Service Image Url', store=True,
+        multi='complete_name',
+        compute='_compute_multi_from_complete_name')
+
+    runbot_url = fields.Char(
+        string='Runbot Url', multi='complete_name',
+        compute='_compute_multi_from_complete_name')
+
+    runbot_image_url = fields.Char(
+        string='Runbot Image Url',
+        multi='complete_name',
+        compute='_compute_multi_from_complete_name')
+
+    github_url = fields.Char(
+        string='Github Url', store=True,
+        multi='complete_name',
+        compute='_compute_multi_from_complete_name')
+
     # Compute Section
     @api.multi
     @api.depends('name', 'repository_id.complete_name')
-    def _compute_complete_name(self):
+    def _compute_multi_from_complete_name(self):
         for repository_branch in self:
+            # Compute Coverage Url and image url
+            repository_branch.coverage_url =\
+                'https://coveralls.io/github/' +\
+                repository_branch.repository_id.complete_name +\
+                '?branch=' + repository_branch.name
+            repository_branch.coverage_image_url =\
+                'https://coveralls.io/repos/github/' +\
+                repository_branch.repository_id.complete_name +\
+                '/badge.svg?branch=' + repository_branch.name
+
+            # Compute Integration Service Url and image url
+            repository_branch.integration_service_url =\
+                'https://travis-ci.org/' +\
+                repository_branch.repository_id.complete_name
+            repository_branch.integration_service_image_url =\
+                'https://travis-ci.org/' +\
+                repository_branch.repository_id.complete_name +\
+                '.svg?branch=' + repository_branch.name
+
+            # Compute Github Url
+            repository_branch.github_image_url =\
+                'https://github.com/' +\
+                repository_branch.repository_id.complete_name +\
+                '/tree/8.0' + repository_branch.name
+
+            # FIXME where I can find this number web -> 162 ???
+            repository_branch.runbot_url =\
+                'https://runbot.odoo-community.org/runbot/' +\
+                str(162)+ '/' +\
+                repository_branch.name
+            repository_branch.runbot_image_url =\
+                'https://runbot.odoo-community.org/runbot/badge/flat/' +\
+                str(162)+ '/' +\
+                repository_branch.name + '.svg'
+
+            # Compute Complete name
             repository_branch.complete_name =\
                 repository_branch.repository_id.complete_name +\
                 '/' + repository_branch.name
-
-    # Compute Section
-    @api.one
-    def name_get(self):
-        return [self.id, self.complete_name]
 
     @api.multi
     @api.depends(
@@ -88,6 +152,10 @@ class GithubRepositoryBranch(models.Model):
         for repository_branch in self:
             repository_branch.module_version_qty =\
                 len(repository_branch.module_version_ids)
+
+    @api.one
+    def name_get(self):
+        return [self.id, self.complete_name]
 
     # Action Section
     @api.multi
@@ -101,6 +169,10 @@ class GithubRepositoryBranch(models.Model):
     @api.multi
     def button_analyze_code(self):
         return self._analyze_code()
+
+    @api.multi
+    def button_analyze_commit(self):
+        return self._analyze_commit()
 
     # Custom Section
     def create_or_update_from_name(self, repository_id, name):
@@ -158,11 +230,18 @@ class GithubRepositoryBranch(models.Model):
     @api.multi
     def _analyze_code(self):
         module_version_obj = self.env['oca.module.version']
+        git_commit_obj = self.env['git.commit']
         for repository_branch in self:
             # Delete all associated module versions
             module_versions = module_version_obj.search([
                 ('repository_branch_id', '=', repository_branch.id)])
             module_versions.with_context(
+                dont_change_repository_branch_state=True).unlink()
+
+            # Delete all associated Commit
+            git_commits = git_commit_obj.search([
+                ('repository_branch_id', '=', repository_branch.id)])
+            git_commits.with_context(
                 dont_change_repository_branch_state=True).unlink()
 
             # Compute path(s) to analyze
@@ -181,7 +260,17 @@ class GithubRepositoryBranch(models.Model):
                         "Unable to analyse %s. Source code not found." % (
                             path))
                 else:
-                    # Scan folder
+                    # Scan commits and create commits
+                    repo = Repo(path)
+                    commits = list(repo.iter_commits(repository_branch.name))
+                    _logger.info(
+                        "Analyzing %d commits in %s..." % (
+                            len(commits), path))
+                    for commit in commits:
+                        git_commit_obj.create_if_not_exist(
+                            commit, repository_branch)
+
+                    # Analyze folders and create module versions
                     _logger.info("Analyzing repository %s ..." % (path))
                     for module_name in self.listdir(path):
                         module_info = load_information_from_description_file(
@@ -197,7 +286,6 @@ class GithubRepositoryBranch(models.Model):
                         'last_analyze_date': datetime.today(),
                         'state':  'analyzed',
                         })
-            self._cr.commit()
 
     # Copy Paste from Odoo Core
     # This function is for the time being in another function.

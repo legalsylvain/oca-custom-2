@@ -43,6 +43,11 @@ class GithubRepository(models.Model):
             "Two Projects with the same Complete Name ? I don't think so.")
     ]
 
+    # Action Section
+    @api.multi
+    def button_analyze_issue(self):
+        return self._analyze_issue()
+
     # Custom Section
     def github_2_odoo(self, data):
         return {
@@ -52,6 +57,34 @@ class GithubRepository(models.Model):
             'website': data['homepage'],
             'description': data['description'],
         }
+
+
+
+    @api.multi
+    def _analyze_issue(self):
+        for repository in self:
+####            # Delete all issues versions # TODO
+####            module_versions = module_version_obj.search([
+####                ('repository_branch_id', '=', repository_branch.id)])
+####            module_versions.with_context(
+####                dont_change_repository_branch_state=True).unlink()
+
+####            # Delete all pull requests # TODO
+####            git_commits = git_commit_obj.search([
+####                ('repository_branch_id', '=', repository_branch.id)])
+####            git_commits.with_context(
+####                dont_change_repository_branch_state=True).unlink()
+            abstract_issue_obj = self.env['github.abstract.issue']
+
+            # Get Issues datas
+            issue_ids = []
+            for data in self.get_datalist_from_github(
+                    'repository_issues', [repository.complete_name]):
+                abstract_issue =\
+                    abstract_issue_obj.create_or_update_from_github(
+                        data, repository)
+#                repository_ids.append(repository.id)
+#            organization.repository_ids = repository_ids
 
     # Custom Section
     @api.model

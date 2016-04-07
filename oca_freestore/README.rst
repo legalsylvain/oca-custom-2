@@ -59,6 +59,13 @@ Daniel Reis ‏@reis_pt 2 mars
 If OCA had an App Store, I could test drive modules in the store just by following a link... #ThinkingOutLoud
 
 
+Issues / Comments
+-----------------
+https://api.github.com/repos/OCA/pos/issues
+https://api.github.com/repos/OCA/pos/issues/91/comments
+
+
+
 Credits
 =======
 

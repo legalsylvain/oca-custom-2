@@ -10,6 +10,10 @@ from . import oca_module_version
 from . import oca_author
 from . import oca_python_lib
 from . import oca_bin_lib
+from . import git_commit
+from . import git_author
+from . import github_abstract_issue
+from . import github_issue
 from . import github_organization
 from . import github_organization_serie
 from . import github_repository

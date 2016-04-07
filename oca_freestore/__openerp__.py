@@ -6,7 +6,7 @@
     'name': 'OCA FreeStore',
     'version': '8.0.0.0.0',
     'category': 'Custom',
-    'author': ['Sylvain LE GAL', 'Odoo Community Association (OCA)'],
+    'author': ['Akretion', 'GRAP', 'Odoo Community Association (OCA)'],
     'summary': 'recover information from github repositories',
     'depends': [
         'base',
@@ -24,6 +24,8 @@
         'views/view_github_repository.xml',
         'views/view_github_repository_branch.xml',
         'views/view_github_team.xml',
+        'views/view_git_commit.xml',
+        'views/view_git_author.xml',
         'views/view_wizard_github_repository_branch.xml',
         'views/action.xml',
         'views/menu.xml',

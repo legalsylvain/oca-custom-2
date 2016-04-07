@@ -24,6 +24,7 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
             <tree>
                 <field name="name"/>
                 <field name="complete_name"/>
+                <button name="button_analyze_issue" type="object" string="Analyze Issues" icon="STOCK_REFRESH"/>
             </tree>
         </field>
     </record>

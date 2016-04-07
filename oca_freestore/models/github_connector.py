@@ -38,6 +38,7 @@ class GithubConnector(models.AbstractModel):
         'repository': {'url': 'repos/%s'},
         'repository_branches': {'url': 'repos/%s/branches', 'max': 100},
         'team_members': {'url': 'teams/%d/members', 'max': 100},
+        'repository_issues': {'url': 'repos/%s/issues', 'max': 100},
     }
 
     def _get_local_path(self, repository_branch_complete_name):
