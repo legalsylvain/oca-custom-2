@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright (C) 2016-Today: Odoo Community Association (OCA)
+@author: Sylvain LE GAL (https://twitter.com/legalsylvain)
+License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
+-->
+<openerp><data>
+
+    <record id="view_github_organization_search" model="ir.ui.view">
+        <field name="model">github.organization</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="github_login"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_github_organization_tree" model="ir.ui.view">
+        <field name="model">github.organization</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="github_login"/>
+<!--                <field name="public_member_qty"/>-->
+<!--                <field name="repository_qty"/>-->
+            </tree>
+        </field>
+    </record>
+
+<!--                        <div>-->
+<!--                            <button name="button_light_synchronize" class="oe_highlight" type="object" string="Light Synchronize" icon="STOCK_REFRESH"/>-->
+<!--                            <button name="button_full_synchronize" type="object" string="Full Synchronize" icon="STOCK_REFRESH"/>-->
+<!--                        </div>-->
+
+    <record id="view_github_organization_form" model="ir.ui.view">
+        <field name="model">github.organization</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <field name="image" widget="image" class="oe_avatar oe_left"/>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                        <h3 class="oe_fade">
+                            <field name="description" class="oe_inline"/>
+                        </h3>
+                    </div>
+                    <div class="oe_clear"/>
+                    <group col="4">
+                        <field name="email" widget="url"/>
+                        <field name="website_url" widget="url"/>
+                        <field name="location"/>
+                        <field name="billing_email" widget="email"/>
+<!--                                <field name="public_member_qty"/>-->
+<!--                                <field name="repository_qty"/>-->
+                        <newline />
+                    </group>
+                    <notebook>
+                        <page name="github" string="Github">
+                            <group col="4">
+                                <field name="github_url" widget="url" colspan="4"/>
+                                <field name="github_id" />
+                                <field name="github_login" />
+                                <field name="github_create_date" />
+                                <field name="github_write_date" />
+                                <field name="github_last_sync_date" />
+                                <button name="update_from_github" type="object"
+                                    string="Synchronize" icon="STOCK_REFRESH" colspan="2"/>
+
+    <!--                        <field name="team_qty" />-->
+                        </group>
+    <!--                    <group string="Team Memberships">-->
+    <!--                        <field name="team_ids" nolabel="1" />-->
+    <!--                    </group>-->
+                        </page>
+
+<!--                        <page string="Repositories">-->
+<!--                            <field name="repository_ids" colspan="4" nolabel="1"/>-->
+<!--                        </page>-->
+<!--                        <page string="Members">-->
+<!--                            <field name="public_member_ids" colspan="4" nolabel="1"/>-->
+<!--                        </page>-->
+<!--                        <page string="Organization Series">-->
+<!--                            <field name="organization_serie_ids" colspan="4" nolabel="1">-->
+<!--                                <tree string="organization_serie_ids" editable="bottom">-->
+<!--                                    <field name="name"/>-->
+<!--                                </tree>-->
+<!--                            </field>-->
+<!--                        </page>-->
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+</data></openerp>
