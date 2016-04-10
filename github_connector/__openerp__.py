@@ -25,7 +25,7 @@
         'views/view_wizard_update_github_model.xml',
         'views/view_github_repository.xml',
 #        'views/view_github_repository_branch.xml',
-#        'views/view_github_team.xml',
+        'views/view_github_team.xml',
 #        'views/view_git_commit.xml',
 #        'views/view_git_author.xml',
 #        'views/view_wizard_github_repository_branch.xml',

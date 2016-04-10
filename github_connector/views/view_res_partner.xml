@@ -42,7 +42,7 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
         <field name="arch" type="xml">
             <field name="display_name" position="after">
                 <field name="github_login" />
-<!--                <field name="team_qty" />-->
+                <field name="team_qty" />
             </field>
         </field>
     </record>
@@ -62,13 +62,15 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
                         <field name="github_create_date" />
                         <field name="github_write_date" />
                         <field name="github_last_sync_date" />
-                        <button name="update_from_github" type="object" string="Synchronize" icon="STOCK_REFRESH" colspan="2"/>
-
-<!--                        <field name="team_qty" />-->
+                        <button name="button_update_from_github_light" type="object" string="Light Sync" icon="STOCK_REFRESH"/>
+                        <button name="button_update_from_github_full" type="object" string="Full Sync" icon="STOCK_REFRESH"/>
                     </group>
-<!--                    <group string="Team Memberships">-->
-<!--                        <field name="team_ids" nolabel="1" />-->
-<!--                    </group>-->
+                </page>
+                <page name="github" string="Github Memberships"
+                        attrs="{'invisible': [('github_login', '=', False)]}">
+                    <group col="4">
+                        <field name="team_ids" nolabel="1" />
+                    </group>
                 </page>
             </page>
         </field>

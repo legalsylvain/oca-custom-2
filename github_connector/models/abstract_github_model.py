@@ -3,26 +3,17 @@
 # @author: Sylvain LE GAL (https://twitter.com/legalsylvain)
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
-from datetime import datetime
 import base64
 import json
 import requests
 import urllib
 import logging
-
+from datetime import datetime
 from requests.auth import HTTPBasicAuth
-#from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 from openerp import api, fields, models, exceptions, _
 
 _logger = logging.getLogger(__name__)
-
-### Disable log of Insecure call to HTTPS website
-### TODO FIXME.
-##requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-
-### Disable useless requests log
-##logging.getLogger("requests").setLevel(logging.WARNING)
 
 _MAX_NUMBER_REQUEST = 30
 
@@ -34,20 +25,18 @@ _GITHUB_TYPE = [
     ('user', 'User'),
 ]
 
-#Use the endpoint: https://api.github.com/user/:id, where :id is the ID of the user.
-
-#Similar endpoints exist for repos and orgs, at https://api.github.com/repositories/:id and https://api.github.com/organizations/:id respectively.
-
 _GITHUB_TYPE_URL = {
     'organization': {'url': 'orgs/%s', 'url_by_id': 'organizations/%s'},
     'user': {'url': 'users/%s', 'url_by_id': 'user/%s'},
     'repository': {'url': 'repos/%s', 'url_by_id': 'repositories/%s'},
-#    'organization_members': {'url': 'orgs/%s/members', 'max': 100},
-#    'organization_repositories': {'url': 'orgs/%s/repos', 'max': 100},
-#    'organization_teams': {'url': 'orgs/%s/teams', 'max': 30},
+    'team': {'url_by_id': 'teams/%s'},
+    'issue': {'url_by_id': 'teams/%s'},
+    'organization_members': {'url': 'orgs/%s/members'},
+    'organization_repositories': {'url': 'orgs/%s/repos'},
+    'organization_teams': {'url': 'orgs/%s/teams'},
+    'team_members': {'url': 'teams/%s/members'},
 
 #    'repository_branches': {'url': 'repos/%s/branches', 'max': 100},
-#    'team_members': {'url': 'teams/%d/members', 'max': 100},
 #    'repository_issues': {'url': 'repos/%s/issues', 'max': 100},
 }
 
@@ -59,7 +48,7 @@ class AbtractGithubModel(models.AbstractModel):
         string='Github Id', readonly=True)
 
     github_login = fields.Char(
-        string='Github login', readonly=True)
+        string='Github Technical Name', readonly=True)
 
     github_url = fields.Char(
         string='Github URL', readonly=True)
@@ -94,27 +83,53 @@ class AbtractGithubModel(models.AbstractModel):
     def get_odoo_data_from_github(self, data):
         return {
             'github_id': data['id'],
-            'github_url': data['html_url'],
+            'github_url': data.get('html_url', False),
             'github_login': data[self.github_login_field()],
-            'github_create_date': data['created_at'],
-            'github_write_date': data['updated_at'],
+            'github_create_date': data.get('created_at', False),
+            'github_write_date': data.get('updated_at', False),
             'github_last_sync_date':
                 datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            
         }
+
+    @api.multi
+    def full_update(self):
+        pass
 
     # Custom Public Function
     @api.model
-    def get_from_id_or_create(self, github_id, github_name):
-        res = self.search([('github_id', '=', 'github_id')])
+    def get_from_id_or_create(self, data):
+        """Search if the odoo object exists in database. If yes, returns the
+            object. Otherwise, creates the new object.
+
+            :param data: dict with github 'id' and 'url' keys
+            :return: The searched or created object
+
+            :Example:
+
+            >>> self.env['github_organization'].get_from_id_or_create(
+                {'id': 7600578, 'url': 'https://api.github.com/orgs/OCA'})
+        """
+        res = self.search([('github_id', '=', data['id'])])
         if not res:
-            return self.create_from_name(github_name)
+            full_data = self._get_data_from_github_url(data['url'])
+            return self._create_from_github_data(full_data)
         else:
             return res
 
     @api.model
     def create_from_name(self, name):
-        res = self._get_data_from_github([name], self.github_type())
+        """Call Github API, using a url using github name. Load data and
+            Create Odoo object accordingly, if the odoo object doesn't exist.
+
+            :param name: the github name to load
+            :return: The created object
+
+            :Example:
+
+            >>> self.env['github_organization'].create_from_name('OCA')
+            >>> self.env['github_repository'].create_from_name('OCA/web')
+        """
+        res = self._get_data_from_github(self.github_type(), [name])
         # search if ID doesn't exist in database
         current_object = self.search([('github_id', '=', res['id'])])
         if not current_object:
@@ -125,12 +140,42 @@ class AbtractGithubModel(models.AbstractModel):
             # TODO
             pass
 
+    def get_datalist_from_github(self, github_type, arguments):
+        page = 1
+        datas = []
+        while True:
+            pending_datas = self._get_data_from_github(
+                github_type, arguments, False, page)
+            datas += pending_datas
+            if pending_datas == [] or\
+                    len(pending_datas) < _MAX_NUMBER_REQUEST:
+                break
+            page += 1
+        return datas
+
     @api.multi
-    def update_from_github(self):
+    def button_update_from_github_light(self):
+        return self.update_from_github(False)
+
+    @api.multi
+    def button_update_from_github_full(self):
+        return self.update_from_github(True)
+
+    @api.multi
+    def update_from_github(self, child_update):
+        """Call Github API, using a url using github id. Load data and
+            update Odoo object accordingly, if the odoo object is obsolete.
+            (Based on last write dates)
+
+            :param child_update: set to True if you want to reload childs
+                Objects linked to this object. (like members for teams)
+        """
         for item in self:
-            res = self._get_data_from_github(
-                [self.github_id], self.github_type(), by_id=True)
+            res = self._get_data_from_github(item.github_type(),
+                [item.github_id], by_id=True)
             item._update_from_github_data(res)
+        if child_update:
+            self.full_update()
 
     def get_base64_image_from_github(self, url):
         stream = urllib.urlopen(url).read()
@@ -147,31 +192,13 @@ class AbtractGithubModel(models.AbstractModel):
         for item in self:
             # TODO Check on dates.
             vals = self.get_odoo_data_from_github(data)
-            print vals
             return item.write(vals)
 
-
-    def _get_url(self, github_type, arguments, by_id, page):
-        if by_id:
-            url = _GITHUB_TYPE_URL[github_type]['url_by_id']
-        else:
-            url = _GITHUB_TYPE_URL[github_type]['url']
-        if github_type not in _GITHUB_TYPE_URL.keys():
-            raise exceptions.Warning(
-                _("Unimplemented Connection"),
-                _("'%s' is not implemented.") % (github_type))
-        if not page:
-            return _BASE_URL + url % tuple(arguments)
-        else:
-            return _BASE_URL + (url + '?per_page=%d&page=%d') % (
-                    tuple(arguments) + (_MAX_NUMBER_REQUEST, page))
-
-    def _get_data_from_github(
-            self, arguments, github_type, by_id=False, page=None):
+    @api.model
+    def _get_data_from_github_url(self, url):
+        _logger.info("Calling %s" % (url))
         login = self.env['ir.config_parameter'].get_param('github.login')
         password = self.env['ir.config_parameter'].get_param('github.password')
-        url = self._get_url(github_type, arguments, by_id, page)
-        _logger.info("Calling %s" % (url))
         response = requests.get(
             url, verify=False, auth=HTTPBasicAuth(login, password))
         if response.status_code == 401:
@@ -189,28 +216,30 @@ class AbtractGithubModel(models.AbstractModel):
                     response.url, response.status_code, response.reason))
         return json.loads(response.content)
 
+    def _get_data_from_github(
+            self, github_type, arguments, by_id=False, page=None):
+        # TODO Refactor me
+        url = self._get_url(github_type, arguments, by_id, page)
+        return self._get_data_from_github_url(url)
 
+
+    def _get_url(self, github_type, arguments, by_id, page):
+        if by_id:
+            url = _GITHUB_TYPE_URL[github_type]['url_by_id']
+        else:
+            url = _GITHUB_TYPE_URL[github_type]['url']
+        if github_type not in _GITHUB_TYPE_URL.keys():
+            raise exceptions.Warning(
+                _("Unimplemented Connection"),
+                _("'%s' is not implemented.") % (github_type))
+        if not page:
+            return _BASE_URL + url % tuple(arguments)
+        else:
+            return _BASE_URL + (url + '?per_page=%d&page=%d') % (
+                    tuple(arguments) + (_MAX_NUMBER_REQUEST, page))
 
 
 ##    def _get_local_path(self, repository_branch_complete_name):
 ##        path = self.env['ir.config_parameter'].get_param('github.local_path')
 ##        return path + repository_branch_complete_name
-
-
-
-##"%(base_url)s" % {'base_url': 'coucou'}
-
-
-##    def get_datalist_from_github(self, type, arguments):
-##        page = 1
-##        datas = []
-##        while True:
-##            pending_datas = self.get_data_from_github(type, arguments, page)
-##            datas += pending_datas
-##            if pending_datas == [] or\
-##                    len(pending_datas) < self._TYPE_KEYS[type]['max']:
-##                break
-##            page += 1
-##        return datas
-
 

@@ -27,6 +27,37 @@ class GithubOrganization(models.Model):
 
     location = fields.Char(string='Location', readonly=True)
 
+    ignored_repository_names = fields.Text(
+        string='Ignored Repositories', help="Set here repository names you"
+        " you want to ignore. One repository per line. Exemple:\n"
+        "odoo-community.org\n"
+        "OpenUpgrade\n")
+
+    member_ids = fields.Many2many(
+        string='Members', comodel_name='res.partner',
+        relation='github_organization_partner_rel', column1='organization_id',
+        column2='partner_id', readonly=True)
+
+    member_qty = fields.Integer(
+        string='Members Quantity', compute='_compute_member_qty',
+        store=True)
+
+    repository_ids = fields.One2many(
+        string='Repositories', comodel_name='github.repository',
+        inverse_name='organization_id', readonly=True)
+
+    repository_qty = fields.Integer(
+        string='Repositories Quantity', compute='_compute_repository_qty',
+        store=True)
+
+    team_ids = fields.One2many(
+        string='Teams', comodel_name='github.team',
+        inverse_name='organization_id', readonly=True)
+
+    team_qty = fields.Integer(
+        string='Team Quantity', compute='_compute_team_qty',
+        store=True)
+
     # Overloadable Section
     def github_type(self):
         return 'organization'
@@ -48,95 +79,73 @@ class GithubOrganization(models.Model):
         })
         return res
 
+    @api.multi
+    def full_update(self):
+        self.button_sync_member()
+        self.button_sync_repository()
+        self.button_sync_team()
 
-#    public_member_ids = fields.Many2many(
-#        string='Members', comodel_name='res.partner',
-#        relation='github_organization_partner_rel', column1='organization_id',
-#        column2='partner_id', readonly=True)
+    # Compute Section
+    @api.multi
+    @api.depends('member_ids')
+    def _compute_member_qty(self):
+        # TODO FIXME, recompute is not called when a member is deleted (M2M)
+        for organization in self:
+            organization.member_qty =\
+                len(organization.member_ids)
 
-#    public_member_qty = fields.Integer(
-#        string='Members Quantity', compute='compute_public_member_qty',
-#        store=True)
+    @api.multi
+    @api.depends('repository_ids.organization_id')
+    def _compute_repository_qty(self):
+        for organization in self:
+            organization.repository_qty =\
+                len(organization.repository_ids)
 
-#    repository_ids = fields.Many2many(
-#        string='Repositories', comodel_name='github.repository',
-#        relation='github_organization_repository_rel',
-#        column1='organization_id', column2='repository_id', readonly=True)
+    @api.multi
+    @api.depends('team_ids.organization_id')
+    def _compute_team_qty(self):
+        for organization in self:
+            organization.team_qty =\
+                len(organization.team_ids)
 
-#    repository_qty = fields.Integer(
-#        string='Repositories Quantity', compute='compute_repository_qty',
-#        store=True)
+    # Action section
+    @api.multi
+    def button_sync_member(self):
+        partner_obj = self.env['res.partner']
+        for organization in self:
+            member_ids = []
+            for data in self.get_datalist_from_github(
+                    'organization_members', [organization.github_login]):
+                partner = partner_obj.get_from_id_or_create(data)
+                member_ids.append(partner.id)
+            organization.member_ids = member_ids
+
+    @api.multi
+    def button_sync_repository(self):
+        repository_obj = self.env['github.repository']
+        for organization in self:
+            repository_ids = []
+            ignored_list = organization.ignored_repository_names and\
+                organization.ignored_repository_names.split("\n") or []
+            for data in self.get_datalist_from_github(
+                    'organization_repositories', [organization.github_login]):
+                if data['name'] not in ignored_list:
+                    repository = repository_obj.get_from_id_or_create(data)
+                    repository_ids.append(repository.id)
+            organization.repository_ids = repository_ids
+
+    @api.multi
+    def button_sync_team(self):
+        team_obj = self.env['github.team']
+        for organization in self:
+            team_ids = []
+            for data in self.get_datalist_from_github(
+                    'organization_teams', [organization.github_login]):
+                team = team_obj.get_from_id_or_create(data)
+                team_ids.append(team.id)
+            organization.team_ids = team_ids
 
 #    organization_serie_ids = fields.One2many(
 #        string='Organization Series',
 #        comodel_name='github.organization.serie',
 #        inverse_name='organization_id')
-
-
-#    # Compute Section
-#    @api.multi
-#    @api.depends('public_member_ids')
-#    def compute_public_member_qty(self):
-#        for organization in self:
-#            organization.public_member_qty =\
-#                len(organization.public_member_ids)
-
-#    @api.multi
-#    @api.depends('repository_ids', 'repository_ids.organization_id')
-#    def compute_repository_qty(self):
-#        for organization in self:
-#            organization.repository_qty =\
-#                len(organization.repository_ids)
-
-
-
-#    # Action Section
-#    @api.multi
-#    def button_full_synchronize(self):
-#        return self.button_synchronize(True)
-
-#    @api.multi
-#    def button_light_synchronize(self):
-#        return self.button_synchronize(False)
-
-#    @api.multi
-#    def button_synchronize(self, full):
-#        partner_obj = self.env['res.partner']
-#        repository_obj = self.env['github.repository']
-#        team_obj = self.env['github.team']
-
-#        for organization in self:
-
-#            # Get organization data
-#            data = self.get_data_from_github(
-#                'organization', [organization.github_login])
-#            organization.write(self.github_2_odoo(data))
-
-#            # Get Members datas
-#            member_ids = []
-#            for data in self.get_datalist_from_github(
-#                    'organization_members', [organization.github_login]):
-#                partner = partner_obj.create_or_update_from_github(data, full)
-#                member_ids.append(partner.id)
-#            organization.public_member_ids = member_ids
-
-#            # Get Repositories datas
-#            repository_ids = []
-#            ignored_list = organization.ignore_repository_names and\
-#                organization.ignore_repository_names.split("\n") or []
-#            for data in self.get_datalist_from_github(
-#                    'organization_repositories', [organization.github_login]):
-#                if data['name'] not in ignored_list:
-#                    repository = repository_obj.create_or_update_from_github(
-#                        organization.id, data, full)
-#                    repository_ids.append(repository.id)
-#            organization.repository_ids = repository_ids
-
-#            # Get Teams datas
-#            team_ids = []
-#            for data in self.get_datalist_from_github(
-#                    'organization_teams', [organization.github_login]):
-#                team = team_obj.create_or_update_from_github(
-#                    organization.id, data, full)
-#                team_ids.append(team.id)
-#            organization.team_ids = team_ids

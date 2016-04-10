@@ -8,6 +8,8 @@ from openerp import api, models, _
 UNIQUE_ACTION_ID = (
     1121141111061019911695109111100112349951161119511226115107)
 
+GITHUB_MODEL = [
+    'res.partner', 'github.organization', 'github.team', 'github.repository']
 
 class IrValues(models.Model):
     _inherit = 'ir.values'
@@ -18,8 +20,7 @@ class IrValues(models.Model):
         """
         res = super(IrValues, self).get_actions(
             action_slot, model, res_id=res_id)
-        if action_slot == 'client_action_multi' and model in\
-                ['res.partner', 'github.organization']:
+        if action_slot == 'client_action_multi' and model in GITHUB_MODEL:
             action = self.add_update_from_github_action(model, res_id=res_id)
             value = (UNIQUE_ACTION_ID, 'github_connector', action)
             res.insert(0, value)

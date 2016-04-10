@@ -38,8 +38,7 @@ class GithubRepository(models.Model):
     def get_odoo_data_from_github(self, data):
         organization_obj = self.env['github.organization']
         res = super(GithubRepository, self).get_odoo_data_from_github(data)
-        organization = organization_obj.get_from_id_or_create(
-            data['owner']['id'], data['owner']['login'])
+        organization = organization_obj.get_from_id_or_create(data['owner'])
         res.update({
             'name': data['name'],
             'github_url': data['url'],

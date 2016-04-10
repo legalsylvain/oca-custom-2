@@ -8,6 +8,14 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 <openerp><data>
 
     <!-- Community Part -->
+    <record id="action_github_organization" model="ir.actions.act_window">
+        <field name="name">Organizations</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">github.organization</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
     <record id="action_res_partner" model="ir.actions.act_window">
         <field name="name">Users</field>
         <field name="type">ir.actions.act_window</field>
@@ -17,10 +25,10 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
         <field name="context">{'search_default_has_github_account':1}</field>
     </record>
 
-    <record id="action_github_organization" model="ir.actions.act_window">
-        <field name="name">Organizations</field>
+    <record id="action_github_team" model="ir.actions.act_window">
+        <field name="name">Teams</field>
         <field name="type">ir.actions.act_window</field>
-        <field name="res_model">github.organization</field>
+        <field name="res_model">github.team</field>
         <field name="view_type">form</field>
         <field name="view_mode">tree,form</field>
     </record>

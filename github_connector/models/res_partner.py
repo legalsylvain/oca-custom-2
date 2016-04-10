@@ -11,14 +11,13 @@ class ResPartner(models.Model):
     _inherit = ['res.partner', 'abstract.github.model']
 
     # Column Section
+    team_ids = fields.Many2many(
+        string='Teams', comodel_name='github.team',
+        relation='github_team_partner_rel', column1='partner_id',
+        column2='team_id', readonly=True)
 
-#    team_ids = fields.Many2many(
-#        string='Teams', comodel_name='github.team',
-#        relation='github_team_partner_rel', column1='partner_id',
-#        column2='team_id', readonly=True)
-
-#    team_qty = fields.Integer(
-#        string='Teams Quantity', compute='compute_team_qty', store=True)
+    team_qty = fields.Integer(
+        string='Teams Quantity', compute='_compute_team_qty', store=True)
 
     # Constraints Section
     _sql_constraints = [
@@ -29,11 +28,11 @@ class ResPartner(models.Model):
     ]
 
     # Compute Section
-#    @api.multi
-#    @api.depends('team_ids')
-#    def compute_team_qty(self):
-#        for partner in self:
-#            partner.team_qty = len(partner.team_ids)
+    @api.multi
+    @api.depends('team_ids', 'team_ids.member_ids')
+    def _compute_team_qty(self):
+        for partner in self:
+            partner.team_qty = len(partner.team_ids)
 
     # Overloadable Section
     def github_type(self):

@@ -10,7 +10,8 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
         <field name="model">wizard.update.github.model</field>
         <field name="arch" type="xml">
             <form>
-                <group>
+                <group col="4">
+                    <field name="child_update"/>
                 </group>
                 <footer>
                     <button name="button_update_github_model" string="Update From Github" type="object" class="oe_highlight"  />

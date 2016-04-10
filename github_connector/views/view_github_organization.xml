@@ -22,16 +22,12 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
             <tree>
                 <field name="name"/>
                 <field name="github_login"/>
-<!--                <field name="public_member_qty"/>-->
-<!--                <field name="repository_qty"/>-->
+                <field name="member_qty"/>
+                <field name="repository_qty"/>
+                <field name="team_qty"/>
             </tree>
         </field>
     </record>
-
-<!--                        <div>-->
-<!--                            <button name="button_light_synchronize" class="oe_highlight" type="object" string="Light Synchronize" icon="STOCK_REFRESH"/>-->
-<!--                            <button name="button_full_synchronize" type="object" string="Full Synchronize" icon="STOCK_REFRESH"/>-->
-<!--                        </div>-->
 
     <record id="view_github_organization_form" model="ir.ui.view">
         <field name="model">github.organization</field>
@@ -51,9 +47,17 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
                         <field name="website_url" widget="url"/>
                         <field name="location"/>
                         <field name="billing_email" widget="email"/>
-<!--                                <field name="public_member_qty"/>-->
-<!--                                <field name="repository_qty"/>-->
-                        <newline />
+                        <newline/>
+                        <field name="member_qty"/>
+                        <button name="button_sync_member" type="object"
+                                string="Synchronize Members" icon="STOCK_REFRESH" colspan="2"/>
+                        <field name="repository_qty"/>
+                        <button name="button_sync_repository" type="object"
+                                string="Synchronize Repositories" icon="STOCK_REFRESH" colspan="2"/>
+                        <field name="team_qty"/>
+                        <button name="button_sync_team" type="object"
+                                string="Synchronize Teams" icon="STOCK_REFRESH" colspan="2"/>
+                        <newline/>
                     </group>
                     <notebook>
                         <page name="github" string="Github">
@@ -64,22 +68,33 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
                                 <field name="github_create_date" />
                                 <field name="github_write_date" />
                                 <field name="github_last_sync_date" />
-                                <button name="update_from_github" type="object"
-                                    string="Synchronize" icon="STOCK_REFRESH" colspan="2"/>
+                                <button name="button_update_from_github_light" type="object" string="Light Sync" icon="STOCK_REFRESH"/>
+                                <button name="button_update_from_github_full" type="object" string="Full Sync" icon="STOCK_REFRESH"/>
+                            </group>
+                        </page>
+                        <page name="member" string="Members">
+                            <group col="4">
+                                <field name="member_ids" colspan="4" nolabel="1"/>
+                            </group>
+                        </page>
+                        <page name="repository" string="Repositories">
+                            <group col="4">
+                                <field name="repository_ids" colspan="4" nolabel="1"/>
+                            </group>
+                        </page>
+                        <page name="extra_setting" string="Extra Settings">
+                            <group col="4">
+                                <field name="ignored_repository_names" colspan="4"/>
+                            </group>
+                        </page>
 
     <!--                        <field name="team_qty" />-->
-                        </group>
     <!--                    <group string="Team Memberships">-->
     <!--                        <field name="team_ids" nolabel="1" />-->
     <!--                    </group>-->
-                        </page>
 
-<!--                        <page string="Repositories">-->
-<!--                            <field name="repository_ids" colspan="4" nolabel="1"/>-->
-<!--                        </page>-->
-<!--                        <page string="Members">-->
-<!--                            <field name="public_member_ids" colspan="4" nolabel="1"/>-->
-<!--                        </page>-->
+
+
 <!--                        <page string="Organization Series">-->
 <!--                            <field name="organization_serie_ids" colspan="4" nolabel="1">-->
 <!--                                <tree string="organization_serie_ids" editable="bottom">-->
