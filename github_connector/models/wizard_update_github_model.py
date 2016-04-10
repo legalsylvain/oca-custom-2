@@ -18,5 +18,6 @@ class WizardUpdateGithubModel(models.TransientModel):
     def button_update_github_model(self):
         for wizard in self:
             model_obj = self.env[self._context['active_model']]
-            objects = model_obj.browse(self._context['active_ids'])
-            objects.update_from_github(wizard.child_update)
+            for item in model_obj.browse(self._context['active_ids']):
+                item.update_from_github(wizard.child_update)
+                self._cr.commit()

@@ -30,14 +30,16 @@ _GITHUB_TYPE_URL = {
     'user': {'url': 'users/%s', 'url_by_id': 'user/%s'},
     'repository': {'url': 'repos/%s', 'url_by_id': 'repositories/%s'},
     'team': {'url_by_id': 'teams/%s'},
-    'issue': {'url_by_id': 'teams/%s'},
+    'issue': {'url': 'repos/%s/issues/%s'},
     'organization_members': {'url': 'orgs/%s/members'},
     'organization_repositories': {'url': 'orgs/%s/repos'},
     'organization_teams': {'url': 'orgs/%s/teams'},
     'team_members': {'url': 'teams/%s/members'},
+    'repository_issues': {'url': 'repos/%s/issues?state=all'},
+    'issue_comments': {'url': 'repos/%s/issues/%s/comments'},
 
 #    'repository_branches': {'url': 'repos/%s/branches', 'max': 100},
-#    'repository_issues': {'url': 'repos/%s/issues', 'max': 100},
+
 }
 
 
@@ -62,12 +64,6 @@ class AbtractGithubModel(models.AbstractModel):
     github_last_sync_date = fields.Datetime(
         string='Last Sync Date with Github', readonly=True)
 
-    # Constraints Section
-    _sql_constraints = [(
-            'github_login_uniq', 'unique(github_login)',
-            "Two objects with the same Github Login ?"
-            " I can't believe it !")]
-
     # Overloadable Section
     def github_type(self):
         raise exceptions.Warning(
@@ -84,7 +80,7 @@ class AbtractGithubModel(models.AbstractModel):
         return {
             'github_id': data['id'],
             'github_url': data.get('html_url', False),
-            'github_login': data[self.github_login_field()],
+            'github_login': data.get(self.github_login_field(), False),
             'github_create_date': data.get('created_at', False),
             'github_write_date': data.get('updated_at', False),
             'github_last_sync_date':
@@ -97,7 +93,7 @@ class AbtractGithubModel(models.AbstractModel):
 
     # Custom Public Function
     @api.model
-    def get_from_id_or_create(self, data):
+    def get_from_id_or_create(self, data, extra_data={}):
         """Search if the odoo object exists in database. If yes, returns the
             object. Otherwise, creates the new object.
 
@@ -112,7 +108,7 @@ class AbtractGithubModel(models.AbstractModel):
         res = self.search([('github_id', '=', data['id'])])
         if not res:
             full_data = self._get_data_from_github_url(data['url'])
-            return self._create_from_github_data(full_data)
+            return self._create_from_github_data(full_data, extra_data)
         else:
             return res
 
@@ -171,8 +167,15 @@ class AbtractGithubModel(models.AbstractModel):
                 Objects linked to this object. (like members for teams)
         """
         for item in self:
-            res = self._get_data_from_github(item.github_type(),
-                [item.github_id], by_id=True)
+            if item._model._name == 'github.issue':
+                # This Hack is not very beautiful
+                # Github doesn't provides api to load a issue, by issue id
+                # TODO Refactor me.
+                res = self._get_data_from_github(item.github_type(),
+                    [item.repository_id.github_login, item.github_login])
+            else:
+                res = self._get_data_from_github(item.github_type(),
+                    [item.github_id], by_id=True)
             item._update_from_github_data(res)
         if child_update:
             self.full_update()
@@ -183,8 +186,9 @@ class AbtractGithubModel(models.AbstractModel):
 
     # Custom Private Function
     @api.model
-    def _create_from_github_data(self, data):
+    def _create_from_github_data(self, data, extra_data={}):
         vals = self.get_odoo_data_from_github(data)
+        vals.update(extra_data)
         return self.create(vals)
 
     @api.multi
@@ -232,11 +236,16 @@ class AbtractGithubModel(models.AbstractModel):
             raise exceptions.Warning(
                 _("Unimplemented Connection"),
                 _("'%s' is not implemented.") % (github_type))
-        if not page:
-            return _BASE_URL + url % tuple(arguments)
-        else:
-            return _BASE_URL + (url + '?per_page=%d&page=%d') % (
-                    tuple(arguments) + (_MAX_NUMBER_REQUEST, page))
+        complete_url = _BASE_URL + url % tuple(arguments)
+
+        if page:
+            complete_url += ('?' in complete_url and '&' or '?') +\
+                'per_page=%d&page=%d' % (_MAX_NUMBER_REQUEST, page)
+        return complete_url
+
+#        else:
+#            return _BASE_URL + (url +  % (
+#                    tuple(arguments) + (_MAX_NUMBER_REQUEST, page))
 
 
 ##    def _get_local_path(self, repository_branch_complete_name):

@@ -26,6 +26,8 @@
         'views/view_github_repository.xml',
 #        'views/view_github_repository_branch.xml',
         'views/view_github_team.xml',
+        'views/view_github_issue.xml',
+        'views/view_github_comment.xml',
 #        'views/view_git_commit.xml',
 #        'views/view_git_author.xml',
 #        'views/view_wizard_github_repository_branch.xml',

@@ -42,6 +42,23 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
         <field name="view_mode">tree,form</field>
     </record>
 
+    <record id="action_github_issue" model="ir.actions.act_window">
+        <field name="name">Issues / PR</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">github.issue</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form,graph</field>
+        <field name="context">{'search_default_filter_open_issue':1}</field>
+    </record>
+
+    <record id="action_github_comment" model="ir.actions.act_window">
+        <field name="name">Comments</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">github.comment</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
     <!-- Settings Part -->
     <record id="action_wizard_load_github_model" model="ir.actions.act_window">
         <field name="name">Load from Github Wizard</field>

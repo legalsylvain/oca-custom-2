@@ -9,7 +9,8 @@ UNIQUE_ACTION_ID = (
     1121141111061019911695109111100112349951161119511226115107)
 
 GITHUB_MODEL = [
-    'res.partner', 'github.organization', 'github.team', 'github.repository']
+    'res.partner', 'github.organization', 'github.team', 'github.repository',
+    'github.issue', 'github.comment']
 
 class IrValues(models.Model):
     _inherit = 'ir.values'

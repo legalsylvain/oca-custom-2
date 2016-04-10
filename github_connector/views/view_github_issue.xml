@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright (C) 2016-Today: Odoo Community Association (OCA)
+@author: Sylvain LE GAL (https://twitter.com/legalsylvain)
+License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
+-->
+<openerp><data>
+
+    <record id="view_github_issue_search" model="ir.ui.view">
+        <field name="model">github.issue</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="title"/>
+                <field name="github_login"/>
+                <field name="body"/>
+                <field name="issue_type"/>
+                <field name="repository_id"/>
+                <field name="author_id"/>
+                <field name="state"/>
+                <filter name="filter_open_issue" string="Open Issues" domain="[('state','=', 'open')]"/>
+                <filter name="group_by_author_id" string="By Author" context="{'group_by': 'author_id'}" />
+                <filter name="group_by_repository_id" string="By Repository" context="{'group_by': 'repository_id'}" />
+                <filter name="group_by_issue_type" string="By Type" context="{'group_by': 'issue_type'}" />
+            </search>
+        </field>
+    </record>
+
+    <record id="view_github_issue_tree" model="ir.ui.view">
+        <field name="model">github.issue</field>
+        <field name="arch" type="xml">
+            <tree colors="gray:state=='closed'; red:issue_type=='issue'; black:issue_type=='pull_request'">
+                <field name="repository_id"/>
+                <field name="author_id"/>
+                <field name="title"/>
+                <field name="comment_qty"/>
+                <field name="state" invisible="1"/>
+                <field name="issue_type" invisible="1"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_github_issue_graph" model="ir.ui.view">
+        <field name="model">github.issue</field>
+        <field name="arch" type="xml">
+            <graph type="bar">
+                <field name="author_id" type="row"/>
+            </graph>
+        </field>
+    </record>
+
+</data></openerp>

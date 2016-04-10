@@ -6,13 +6,13 @@
 from openerp import models, fields, api, exceptions, _
 
 
-class GithubIssue(models.AbstractModel):
+class GithubIssue(models.Model):
     _name = 'github.issue'
     _inherit = ['abstract.github.model']
 
     repository_id = fields.Many2one(
         comodel_name='github.repository', string='Repository', readonly=True,
-        required=True)
+        required=True, ondelete='cascade')
 
     issue_type = fields.Selection(
         selection=[('issue', 'Issue'), ('pull_request', 'Pull Request')],
@@ -20,13 +20,32 @@ class GithubIssue(models.AbstractModel):
 
     title = fields.Char(string='Title', readonly=True, required=True)
 
-    body = fields.Char(string='Body', readonly=True, required=True)
+    body = fields.Char(string='Body', readonly=True)
 
     author_id = fields.Many2one(
         comodel_name='res.partner', string='Author', readonly=True,
         required=True)
 
-     Overloadable Section
+    state = fields.Selection(selection=[
+        ('open', 'Open'), ('closed', 'Closed')],
+        string='State', readonly=True, required=True)
+
+    comment_ids = fields.One2many(
+        string='Comments', comodel_name='github.comment',
+        inverse_name='issue_id', readonly=True)
+
+    comment_qty = fields.Integer(
+        string='Comments Quantity', compute='_compute_comment_qty',
+        store=True)
+
+    # Compute Section
+    @api.multi
+    @api.depends('comment_ids', 'comment_ids.issue_id')
+    def _compute_comment_qty(self):
+        for issue in self:
+            issue.issue_qty = len(issue.comment_ids)
+
+    # Overloadable Section
     def github_type(self):
         return 'issue'
 
@@ -34,26 +53,36 @@ class GithubIssue(models.AbstractModel):
         return 'number'
 
     def get_odoo_data_from_github(self, data):
-        repository_obj = self.env['github.repository']
         partner_obj = self.env['res.partner']
         res = super(GithubIssue, self).get_odoo_data_from_github(data)
-        organization = organization_obj.get_from_id_or_create(
-            data['repository'])
-        partner = organization_obj.get_from_id_or_create(
+        partner = partner_obj.get_from_id_or_create(
             data['user'])
         res.update({
-            'github_id': data['id'],
             'title': data['title'],
             'body': data['body'],
             'author_id': partner.id,
-            'repository_id': repository.id,
-            'type': data.get('pull_request', False)
+            'state': data['state'],
+            'issue_type': data.get('pull_request', False)
                 and 'pull_request' or 'issue',
         })
         return res
 
     @api.multi
     def full_update(self):
-        # TODO Load comment
-        pass
-#        self.button_sync_member()
+        self.button_sync_comment()
+
+    # Action section
+    @api.multi
+    def button_sync_comment(self):
+        comment_obj = self.env['github.comment']
+        for issue in self:
+            comment_ids = []
+            for data in self.get_datalist_from_github(
+                    'issue_comments',
+                    [issue.repository_id.github_login, issue.github_login]):
+                comment = comment_obj.get_from_id_or_create(
+                    data, {'issue_id': issue.id})
+                comment_ids.append(comment.id)
+            issue.comment_ids = comment_ids
+
+

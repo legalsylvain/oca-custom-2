@@ -27,6 +27,38 @@ class GithubRepository(models.Model):
 
     website = fields.Char(string='Website', readonly=True)
 
+    issue_ids = fields.One2many(
+        string='Issues / PR', comodel_name='github.issue',
+        inverse_name='repository_id', readonly=True)
+
+    issue_qty = fields.Integer(
+        string='Issue / PR Quantity', compute='_compute_issue_qty',
+        multi='issue', store=True)
+
+    only_issue_qty = fields.Integer(
+        string='Issue Quantity', compute='_compute_issue_qty',
+        multi='issue', store=True)
+
+    only_pull_request_qty = fields.Integer(
+        string='PR Quantity', compute='_compute_issue_qty',
+        multi='issue', store=True)
+
+    # Compute Section
+    @api.multi
+    @api.depends('issue_ids.repository_id')
+    def _compute_issue_qty(self):
+        for repository in self:
+            only_issue_qty = 0
+            only_pull_request_qty = 0
+            repository.issue_qty = len(repository.issue_ids)
+            for issue in repository.issue_ids:
+                if issue.issue_type == 'issue':
+                    only_issue_qty += 1
+                else:
+                    only_pull_request_qty += 1
+            repository.only_issue_qty = only_issue_qty
+            repository.only_pull_request_qty = only_pull_request_qty
+
     # Overloadable Section
     def github_type(self):
         return 'repository'
@@ -47,6 +79,30 @@ class GithubRepository(models.Model):
             'organization_id': organization.id,
         })
         return res
+
+    @api.multi
+    def full_update(self):
+        self.button_sync_issue()
+
+    # Action section
+    @api.multi
+    def button_sync_issue(self):
+        issue_obj = self.env['github.issue']
+        for repository in self:
+            issue_ids = []
+            for data in self.get_datalist_from_github(
+                    'repository_issues', [repository.github_login]):
+                issue = issue_obj.get_from_id_or_create(
+                    data, {'repository_id': repository.id})
+                issue_ids.append(issue.id)
+            repository.issue_ids = issue_ids
+
+    # Action section
+    @api.multi
+    def button_sync_issue_with_comment(self):
+        self.button_sync_issue()
+        for repository in self:
+            repository.issue_ids.button_sync_comment()
 
 #    repository_branch_ids = fields.One2many(
 #        comodel_name='github.repository.branch',
