@@ -10,6 +10,10 @@ class GithubComment(models.Model):
     _name = 'github.comment'
     _inherit = ['abstract.github.model']
 
+    _github_type = 'issue'
+    _github_login_field = False
+
+    # Column Section
     issue_id = fields.Many2one(
         comodel_name='github.issue', string='Issue / PR', readonly=True,
         required=True, ondelete='cascade')
@@ -21,12 +25,6 @@ class GithubComment(models.Model):
         required=True)
 
     # Overloadable Section
-    def github_type(self):
-        return 'issue'
-
-    def github_login_field(self):
-        return False
-
     def get_odoo_data_from_github(self, data):
         partner_obj = self.env['res.partner']
         res = super(GithubComment, self).get_odoo_data_from_github(data)

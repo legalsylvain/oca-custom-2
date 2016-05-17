@@ -11,6 +11,9 @@ class GithubOrganization(models.Model):
     _inherit = ['abstract.github.model']
     _order = 'name'
 
+    _github_type = 'organization'
+    _github_login_field = 'login'
+
     # Columns Section
     name = fields.Char(
         string='Organization Name', required=True, readonly=True)
@@ -59,12 +62,6 @@ class GithubOrganization(models.Model):
         store=True)
 
     # Overloadable Section
-    def github_type(self):
-        return 'organization'
-
-    def github_login_field(self):
-        return 'login'
-
     @api.model
     def get_odoo_data_from_github(self, data):
         res = super(GithubOrganization, self).get_odoo_data_from_github(data)

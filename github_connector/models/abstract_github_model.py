@@ -37,15 +37,14 @@ _GITHUB_TYPE_URL = {
     'team_members': {'url': 'teams/%s/members'},
     'repository_issues': {'url': 'repos/%s/issues?state=all'},
     'issue_comments': {'url': 'repos/%s/issues/%s/comments'},
-
 #    'repository_branches': {'url': 'repos/%s/branches', 'max': 100},
-
 }
 
 
 class AbtractGithubModel(models.AbstractModel):
     _name = 'abstract.github.model'
-
+    _github_type = None
+    
     github_id = fields.Char(
         string='Github Id', readonly=True)
 
@@ -66,14 +65,20 @@ class AbtractGithubModel(models.AbstractModel):
 
     # Overloadable Section
     def github_type(self):
-        raise exceptions.Warning(
-            _("Unimplemented Feature"),
-            _("Please define github_type function in child model."))
+        if _github_type is None:
+            raise exceptions.Warning(
+                _("Unimplemented Feature"),
+                _("Please define github_type function in child model."))
+        else:
+            return _github_type
 
     def github_login_field(self):
-        raise exceptions.Warning(
-            _("Unimplemented Feature"),
-            _("Please define github_login_field function in child model."))
+        if _github_login_field is None:
+            raise exceptions.Warning(
+                _("Unimplemented Feature"),
+                _("Please define github_login_field function in child model."))
+        else:
+            return _github_login_field
 
     @api.model
     def get_odoo_data_from_github(self, data):

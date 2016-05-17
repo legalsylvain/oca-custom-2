@@ -11,6 +11,9 @@ class GithubTeam(models.Model):
     _inherit = ['abstract.github.model']
     _order = 'name'
 
+    _github_type ='team'
+    _github_login_field = 'slug'
+
     # Column Section
     organization_id = fields.Many2one(
         comodel_name='github.organization', string='Organization',
@@ -37,12 +40,6 @@ class GithubTeam(models.Model):
             team.member_qty = len(team.member_ids)
 
     # Overloadable Section
-    def github_type(self):
-        return 'team'
-
-    def github_login_field(self):
-        return 'slug'
-
     def get_odoo_data_from_github(self, data):
         organization_obj = self.env['github.organization']
         res = super(GithubTeam, self).get_odoo_data_from_github(data)

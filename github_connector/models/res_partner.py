@@ -10,6 +10,9 @@ class ResPartner(models.Model):
     _name = 'res.partner'
     _inherit = ['res.partner', 'abstract.github.model']
 
+    _github_type = 'user'
+    _github_login_field = 'login'
+
     # Column Section
     team_ids = fields.Many2many(
         string='Teams', comodel_name='github.team',
@@ -35,12 +38,6 @@ class ResPartner(models.Model):
             partner.team_qty = len(partner.team_ids)
 
     # Overloadable Section
-    def github_type(self):
-        return 'user'
-
-    def github_login_field(self):
-        return 'login'
-
     @api.model
     def get_odoo_data_from_github(self, data):
         res = super(ResPartner, self).get_odoo_data_from_github(data)

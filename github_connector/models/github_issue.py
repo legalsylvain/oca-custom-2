@@ -10,6 +10,10 @@ class GithubIssue(models.Model):
     _name = 'github.issue'
     _inherit = ['abstract.github.model']
 
+    _github_type = 'issue'
+    _github_login_field = 'number'
+
+    # Column Section
     repository_id = fields.Many2one(
         comodel_name='github.repository', string='Repository', readonly=True,
         required=True, ondelete='cascade')
@@ -46,12 +50,6 @@ class GithubIssue(models.Model):
             issue.issue_qty = len(issue.comment_ids)
 
     # Overloadable Section
-    def github_type(self):
-        return 'issue'
-
-    def github_login_field(self):
-        return 'number'
-
     def get_odoo_data_from_github(self, data):
         partner_obj = self.env['res.partner']
         res = super(GithubIssue, self).get_odoo_data_from_github(data)
