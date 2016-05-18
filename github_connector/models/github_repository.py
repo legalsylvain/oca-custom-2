@@ -31,19 +31,31 @@ class GithubRepository(models.Model):
     website = fields.Char(string='Website', readonly=True)
 
     issue_ids = fields.One2many(
-        string='Issues / PR', comodel_name='github.issue',
+        string='Issues + PR', comodel_name='github.issue',
         inverse_name='repository_id', readonly=True)
 
     issue_qty = fields.Integer(
-        string='Issue / PR Quantity', compute='_compute_issue_qty',
+        string='Issue + PR Quantity', compute='_compute_issue_qty',
+        multi='issue', store=True)
+
+    open_issue_qty = fields.Integer(
+        string='Open Issue + PR Quantity', compute='_compute_issue_qty',
         multi='issue', store=True)
 
     only_issue_qty = fields.Integer(
         string='Issue Quantity', compute='_compute_issue_qty',
         multi='issue', store=True)
 
+    only_open_issue_qty = fields.Integer(
+        string='Open Issue Quantity', compute='_compute_issue_qty',
+        multi='issue', store=True)
+
     only_pull_request_qty = fields.Integer(
         string='PR Quantity', compute='_compute_issue_qty',
+        multi='issue', store=True)
+
+    only_open_pull_request_qty = fields.Integer(
+        string='Open PR Quantity', compute='_compute_issue_qty',
         multi='issue', store=True)
 
     # Compute Section
@@ -52,15 +64,25 @@ class GithubRepository(models.Model):
     def _compute_issue_qty(self):
         for repository in self:
             only_issue_qty = 0
+            only_open_issue_qty = 0
             only_pull_request_qty = 0
-            repository.issue_qty = len(repository.issue_ids)
+            only_open_pull_request_qty = 0
             for issue in repository.issue_ids:
                 if issue.issue_type == 'issue':
                     only_issue_qty += 1
+                    if issue.state == 'open':
+                        only_open_issue_qty += 1
                 else:
                     only_pull_request_qty += 1
+                    if issue.state == 'open':
+                        only_open_pull_request_qty += 1
             repository.only_issue_qty = only_issue_qty
+            repository.only_open_issue_qty = only_open_issue_qty
             repository.only_pull_request_qty = only_pull_request_qty
+            repository.only_open_pull_request_qty = only_open_pull_request_qty
+            repository.issue_qty = only_issue_qty + only_pull_request_qty
+            repository.open_issue_qty =\
+                only_open_issue_qty + only_open_pull_request_qty
 
     # Overloadable Section
     @api.model

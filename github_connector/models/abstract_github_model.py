@@ -37,15 +37,23 @@ _GITHUB_TYPE_URL = {
     'team_members': {'url': 'teams/%s/members'},
     'repository_issues': {'url': 'repos/%s/issues?state=all'},
     'issue_comments': {'url': 'repos/%s/issues/%s/comments'},
-#    'repository_branches': {'url': 'repos/%s/branches', 'max': 100},
+    #    'repository_branches': {'url': 'repos/%s/branches', 'max': 100},
 }
+
+"""
+
+This abstract model is used to share all features related to github model.
+Note that some fields and function have to be defined in the inherited model.
+(github_type for instance)
+
+"""
 
 
 class AbtractGithubModel(models.AbstractModel):
     _name = 'abstract.github.model'
     _github_type = None
     _github_login_field = None
-    
+
     github_id = fields.Char(
         string='Github Id', readonly=True, select=True)
 
@@ -90,7 +98,7 @@ class AbtractGithubModel(models.AbstractModel):
             'github_create_date': data.get('created_at', False),
             'github_write_date': data.get('updated_at', False),
             'github_last_sync_date':
-                datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
         }
 
     @api.multi
@@ -177,11 +185,12 @@ class AbtractGithubModel(models.AbstractModel):
                 # This Hack is not very beautiful
                 # Github doesn't provides api to load a issue, by issue id
                 # TODO Refactor me.
-                res = self._get_data_from_github(item.github_type(),
+                res = self._get_data_from_github(
+                    item.github_type(),
                     [item.repository_id.github_login, item.github_login])
             else:
-                res = self._get_data_from_github(item.github_type(),
-                    [item.github_id], by_id=True)
+                res = self._get_data_from_github(
+                    item.github_type(), [item.github_id], by_id=True)
             item._update_from_github_data(res)
         if child_update:
             self.full_update()
@@ -232,7 +241,6 @@ class AbtractGithubModel(models.AbstractModel):
         url = self._get_url(github_type, arguments, by_id, page)
         return self._get_data_from_github_url(url)
 
-
     def _get_url(self, github_type, arguments, by_id, page):
         if by_id:
             url = _GITHUB_TYPE_URL[github_type]['url_by_id']
@@ -248,13 +256,3 @@ class AbtractGithubModel(models.AbstractModel):
             complete_url += ('?' in complete_url and '&' or '?') +\
                 'per_page=%d&page=%d' % (_MAX_NUMBER_REQUEST, page)
         return complete_url
-
-#        else:
-#            return _BASE_URL + (url +  % (
-#                    tuple(arguments) + (_MAX_NUMBER_REQUEST, page))
-
-
-##    def _get_local_path(self, repository_branch_complete_name):
-##        path = self.env['ir.config_parameter'].get_param('github.local_path')
-##        return path + repository_branch_complete_name
-

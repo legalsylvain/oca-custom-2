@@ -5,12 +5,12 @@
 
 import markdown
 
-from openerp import models, fields, api, exceptions, _
+from openerp import models, fields, api
 
 
 class GithubComment(models.Model):
     _name = 'github.comment'
-    _inherit = ['abstract.github.model']
+    _inherit = ['abstract.github.model.author']
     _order = 'github_id'
 
     _github_type = 'issue'
@@ -26,10 +26,6 @@ class GithubComment(models.Model):
     html_body = fields.Html(
         string='HTML Body', readonly=True, compute='_compute_html_body')
 
-    author_id = fields.Many2one(
-        comodel_name='res.partner', string='Author', readonly=True,
-        required=True)
-
     # Compute section
     @api.multi
     @api.depends('body')
@@ -39,12 +35,6 @@ class GithubComment(models.Model):
 
     # Overloadable Section
     def get_odoo_data_from_github(self, data):
-        partner_obj = self.env['res.partner']
         res = super(GithubComment, self).get_odoo_data_from_github(data)
-        partner = partner_obj.get_from_id_or_create(
-            data['user'])
-        res.update({
-            'body': data['body'],
-            'author_id': partner.id,
-        })
+        res.update({'body': data['body']})
         return res

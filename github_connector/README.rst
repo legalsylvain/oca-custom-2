@@ -1,8 +1,8 @@
 .. image:: https://img.shields.io/badge/licence-AGPL--3-blue.svg
     :alt: License: AGPL-3
-
-Github Connector - Load Github Data in your Odoo Instance
-=========================================================
+======================================
+Load Github Data in your Odoo Instance
+======================================
 
 Goal of the module
 ------------------
@@ -16,54 +16,34 @@ Installation
 
 Nothing special is needed to install this module.
 
-
-
 Configuration
 =============
 
-xxx
+Once installed, you have to:
+
+* go to 'Settings' / 'Technical' / 'Parameters' / 'System Parameters'
+* set credentials to access to github
+* set a local folder, if you want to download code source from github
+
+.. image:: /github_connector/static/description/github_settings.png
+
 
 Usage
 =====
 
-xxx
----
+To recover information from github, you have to to :
+* go to 'Github' / 'Settings' / 'Sync Object'
+* Select the object type you want to synchronize and its github name
+
+.. image:: /github_connector/static/description/sync_organization.png
 
 
+
+# TODO FIXME make real recursion.
+* Check 'update Child Object' will update recursively the object.
 
 Known issues / Roadmap
 ======================
-
-* allow git pull pour les repos existant;
-
-* check modules and create if not exists, based on odoo core parsing.
-
--> technical_name;
--> name;
--> 
-
-for oca.module.version : 
-TODO idea : set active == installable ?
-
-* Make a wizard on update organization with option update partner / update repository ...
-* Make a class 'github.connection' to make partner and repository... inherit from this class
--> make
-
-* should be great to have the different distinction of membership : member, owner,  for a team.
-
-change github_login to github_name (github.organization)
-
-
-Daniel Reis ‏@reis_pt 2 mars
-
-If OCA had an App Store, I could test drive modules in the store just by following a link... #ThinkingOutLoud
-
-
-Issues / Comments
------------------
-https://api.github.com/repos/OCA/pos/issues
-https://api.github.com/repos/OCA/pos/issues/91/comments
-
 
 
 Credits

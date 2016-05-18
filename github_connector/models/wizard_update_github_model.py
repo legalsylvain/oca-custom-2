@@ -5,8 +5,6 @@
 
 from openerp import models, fields, api
 
-from .abstract_github_model import _GITHUB_TYPE
-
 
 class WizardUpdateGithubModel(models.TransientModel):
     _name = 'wizard.update.github.model'

@@ -84,9 +84,8 @@ class GithubOrganization(models.Model):
 
     # Compute Section
     @api.multi
-    @api.depends('member_ids')
+    @api.depends('member_ids', 'member_ids.organization_ids')
     def _compute_member_qty(self):
-        # TODO FIXME, recompute is not called when a member is deleted (M2M)
         for organization in self:
             organization.member_qty = len(organization.member_ids)
 

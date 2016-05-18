@@ -12,6 +12,7 @@ GITHUB_MODEL = [
     'res.partner', 'github.organization', 'github.team', 'github.repository',
     'github.issue', 'github.comment']
 
+
 class IrValues(models.Model):
     _inherit = 'ir.values'
 

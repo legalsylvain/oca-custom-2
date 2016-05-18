@@ -3,12 +3,12 @@
 # @author: Sylvain LE GAL (https://twitter.com/legalsylvain)
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
-from openerp import models, fields, api, exceptions, _
+from openerp import models, fields, api
 
 
 class GithubIssue(models.Model):
     _name = 'github.issue'
-    _inherit = ['abstract.github.model']
+    _inherit = ['abstract.github.model.author']
 
     _github_type = 'issue'
     _github_login_field = 'number'
@@ -25,10 +25,6 @@ class GithubIssue(models.Model):
     title = fields.Char(string='Title', readonly=True, required=True)
 
     body = fields.Char(string='Body', readonly=True)
-
-    author_id = fields.Many2one(
-        comodel_name='res.partner', string='Author', readonly=True,
-        required=True)
 
     state = fields.Selection(selection=[
         ('open', 'Open'), ('closed', 'Closed')],
@@ -51,17 +47,13 @@ class GithubIssue(models.Model):
 
     # Overloadable Section
     def get_odoo_data_from_github(self, data):
-        partner_obj = self.env['res.partner']
         res = super(GithubIssue, self).get_odoo_data_from_github(data)
-        partner = partner_obj.get_from_id_or_create(
-            data['user'])
         res.update({
             'title': data['title'],
             'body': data['body'],
-            'author_id': partner.id,
             'state': data['state'],
             'issue_type': data.get('pull_request', False)
-                and 'pull_request' or 'issue',
+            and 'pull_request' or 'issue',
         })
         return res
 
@@ -82,5 +74,3 @@ class GithubIssue(models.Model):
                     data, {'issue_id': issue.id})
                 comment_ids.append(comment.id)
             issue.comment_ids = comment_ids
-
-

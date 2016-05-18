@@ -11,7 +11,7 @@ class GithubTeam(models.Model):
     _inherit = ['abstract.github.model']
     _order = 'name'
 
-    _github_type ='team'
+    _github_type = 'team'
     _github_login_field = 'slug'
 
     # Column Section

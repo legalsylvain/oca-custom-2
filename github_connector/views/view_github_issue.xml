@@ -16,6 +16,7 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
                 <field name="issue_type"/>
                 <field name="repository_id"/>
                 <field name="author_id"/>
+                <field name="company_author_id"/>
                 <field name="state"/>
                 <filter name="filter_open_issue" string="Open Issues" domain="[('state','=', 'open')]"/>
                 <filter name="group_by_author_id" string="By Author" context="{'group_by': 'author_id'}" />

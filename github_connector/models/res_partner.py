@@ -4,6 +4,7 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 from openerp import api, models, fields
+from openerp.tools.translate import _
 
 
 class ResPartner(models.Model):
@@ -31,7 +32,7 @@ class ResPartner(models.Model):
         string='Organizations Quantity', compute='_compute_organization_qty',
         store=True)
 
-    issue_ids = fields.Many2many(
+    issue_ids = fields.One2many(
         string='Issues + PR', comodel_name='github.issue',
         inverse_name='author_id', readonly=True)
 
@@ -39,7 +40,15 @@ class ResPartner(models.Model):
         string='Issues + PR Quantity', compute='_compute_issue_qty',
         store=True)
 
-    comment_ids = fields.Many2many(
+    corporate_issue_ids = fields.One2many(
+        string='Corporate Issues + PR', comodel_name='github.issue',
+        inverse_name='company_author_id', readonly=True)
+
+    corporate_issue_qty = fields.Integer(
+        string='Corporate Issues + PR Quantity',
+        compute='_compute_corporate_issue_qty', store=True)
+
+    comment_ids = fields.One2many(
         string='Commnents', comodel_name='github.comment',
         inverse_name='author_id', readonly=True)
 
@@ -47,24 +56,46 @@ class ResPartner(models.Model):
         string='Comments Quantity', compute='_compute_comment_qty',
         store=True)
 
+    corporate_comment_ids = fields.One2many(
+        string='Corporate Commnents', comodel_name='github.comment',
+        inverse_name='company_author_id', readonly=True)
+
+    corporate_comment_qty = fields.Integer(
+        string='Corporate Comments Quantity',
+        compute='_compute_corporate_comment_qty', store=True)
+
     # Compute Section
     @api.multi
-    @api.depends('organization_ids')
+    @api.depends('organization_ids', 'organization_ids.member_ids')
     def _compute_organization_qty(self):
         for partner in self:
             partner.organization_qty = len(partner.organization_ids)
 
     @api.multi
-    @api.depends('issue_ids')
+    @api.depends('issue_ids', 'issue_ids.author_id')
     def _compute_issue_qty(self):
         for partner in self:
             partner.issue_qty = len(partner.issue_ids)
 
     @api.multi
-    @api.depends('comment_ids')
+    @api.depends(
+        'corporate_issue_ids', 'corporate_issue_ids.company_author_id')
+    def _compute_corporate_issue_qty(self):
+        for partner in self:
+            partner.corporate_issue_qty = len(partner.corporate_issue_ids)
+
+    @api.multi
+    @api.depends('comment_ids', 'comment_ids.author_id')
     def _compute_comment_qty(self):
         for partner in self:
             partner.comment_qty = len(partner.comment_ids)
+
+    @api.multi
+    @api.depends(
+        'corporate_comment_ids', 'corporate_comment_ids.company_author_id')
+    def _compute_corporate_comment_qty(self):
+        for partner in self:
+            partner.corporate_comment_qty = len(partner.corporate_comment_ids)
 
     # Constraints Section
     _sql_constraints = [
@@ -74,6 +105,15 @@ class ResPartner(models.Model):
             " Dude, it is impossible !")
     ]
 
+    @api.multi
+    @api.constrains('github_login', 'is_company')
+    def _check_login_company(self):
+        for partner in self:
+            if partner.is_company and partner.github_login:
+                raise Warning(_(
+                    "The company '%s' can not have a github login.") % (
+                    partner.name))
+
     # Compute Section
     @api.multi
     @api.depends('team_ids', 'team_ids.member_ids')
@@ -82,6 +122,23 @@ class ResPartner(models.Model):
             partner.team_qty = len(partner.team_ids)
 
     # Overloadable Section
+    @api.multi
+    def write(self, vals):
+        print vals
+        res = super(ResPartner, self).write(vals)
+        if vals.get('parent_id', False):
+            # We apply corporate setting to existing github activities
+            # (issues / comments) if corporate informations is not defined
+            issues = self.env['github.issue'].search([
+                ('author_id', 'in', self.ids),
+                ('company_author_id', '=', False)])
+            issues.write({'company_author_id': vals.get('parent_id')})
+            comments = self.env['github.comment'].search([
+                ('author_id', 'in', self.ids),
+                ('company_author_id', '=', False)])
+            comments.write({'company_author_id': vals.get('parent_id')})
+        return res
+
     @api.model
     def get_odoo_data_from_github(self, data):
         res = super(ResPartner, self).get_odoo_data_from_github(data)

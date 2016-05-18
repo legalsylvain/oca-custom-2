@@ -50,17 +50,17 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
                         <button type="action" class="oe_stat_button" icon="fa-bug" name="%(action_github_issue)d"
                             attrs="{'invisible': [('only_issue_qty', '=', False)]}"
                             context="{'search_default_repository_id': active_id, 'search_default_issue_type': 'issue'}">
-                            <div><strong><field name="only_issue_qty"/></strong><br/>Issues</div>
+                            <div><strong><field name="only_open_issue_qty"/> / <field name="only_issue_qty"/></strong><br/>Issues</div>
                         </button>
                         <button type="action" class="oe_stat_button" icon="fa-plus" name="%(action_github_issue)d"
                             attrs="{'invisible': [('only_pull_request_qty', '=', False)]}"
                             context="{'search_default_repository_id': active_id, 'search_default_issue_type': 'pull_request'}">
-                            <div><strong><field name="only_pull_request_qty"/></strong><br/>PR</div>
+                            <div><strong><field name="only_open_pull_request_qty"/> / <field name="only_pull_request_qty"/></strong><br/>PR</div>
                         </button>
                         <button type="action" class="oe_stat_button" icon="fa-tasks" name="%(action_github_issue)d"
                             attrs="{'invisible': [('issue_qty', '=', False)]}"
                             context="{'search_default_repository_id': active_id}">
-                            <div><strong><field name="issue_qty"/></strong><br/>Issues + PR</div>
+                            <div><strong><field name="open_issue_qty"/> / <field name="issue_qty"/></strong><br/>Issues + PR</div>
                         </button>
                     </div>
                     <div class="oe_clear"/>

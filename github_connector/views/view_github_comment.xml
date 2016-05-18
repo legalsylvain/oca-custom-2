@@ -12,6 +12,7 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
             <search>
                 <field name="body"/>
                 <field name="author_id"/>
+                <field name="company_author_id"/>
                 <field name="issue_id"/>
             </search>
         </field>
