@@ -28,4 +28,33 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
         </field>
     </record>
 
+    <record id="view_github_comment_form" model="ir.ui.view">
+        <field name="model">github.comment</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_clear"/>
+                        <group col="4">
+                            <field name="issue_id"/>
+                            <field name="author_id"/>
+                            <field name="html_body" widget="html" colspan="4" nolabel="1"/>
+                        </group>
+                    <notebook>
+                        <page name="github" string="Github">
+                            <group col="4">
+                                <field name="github_url" widget="url" colspan="4"/>
+                                <field name="github_id" />
+                                <field name="github_login" />
+                                <field name="github_last_sync_date" />
+                                <button name="button_update_from_github_light" type="object" string="Light Sync" icon="STOCK_REFRESH"/>
+                                <button name="button_update_from_github_full" type="object" string="Full Sync" icon="STOCK_REFRESH"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
 </data></openerp>
