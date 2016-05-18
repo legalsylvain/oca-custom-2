@@ -3,12 +3,15 @@
 # @author: Sylvain LE GAL (https://twitter.com/legalsylvain)
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
+import markdown
+
 from openerp import models, fields, api, exceptions, _
 
 
 class GithubComment(models.Model):
     _name = 'github.comment'
     _inherit = ['abstract.github.model']
+    _order = 'github_id'
 
     _github_type = 'issue'
     _github_login_field = False
@@ -20,9 +23,19 @@ class GithubComment(models.Model):
 
     body = fields.Char(string='Body', readonly=True)
 
+    html_body = fields.Html(
+        string='HTML Body', readonly=True, compute='_compute_html_body')
+
     author_id = fields.Many2one(
         comodel_name='res.partner', string='Author', readonly=True,
         required=True)
+
+    # Compute section
+    @api.multi
+    @api.depends('body')
+    def _compute_html_body(self):
+        for comment in self:
+            comment.html_body = markdown.markdown(comment.body)
 
     # Overloadable Section
     def get_odoo_data_from_github(self, data):

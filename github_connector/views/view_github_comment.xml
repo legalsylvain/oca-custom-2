@@ -12,6 +12,7 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
             <search>
                 <field name="body"/>
                 <field name="author_id"/>
+                <field name="issue_id"/>
             </search>
         </field>
     </record>
@@ -21,7 +22,8 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
         <field name="arch" type="xml">
             <tree>
                 <field name="author_id"/>
-                <field name="body"/>
+                <field name="github_create_date"/>
+                <field name="html_body"/>
             </tree>
         </field>
     </record>

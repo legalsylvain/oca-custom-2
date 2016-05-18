@@ -34,7 +34,7 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
                 <field name="title"/>
                 <field name="comment_qty"/>
                 <field name="state" invisible="1"/>
-                <field name="issue_type" invisible="1"/>
+                <field name="issue_type"/>
             </tree>
         </field>
     </record>
@@ -45,6 +45,53 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
             <graph type="bar">
                 <field name="author_id" type="row"/>
             </graph>
+        </field>
+    </record>
+
+    <record id="view_github_issue_form" model="ir.ui.view">
+        <field name="model">github.issue</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <field name="state" widget="statusbar" statusbar_colors="{'closed': 'gray'}"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="title"/></h1>
+                    </div>
+                    <div class="oe_right oe_button_box" name="buttons">
+                        <button type="action" class="oe_stat_button" icon="fa-comment" name="%(action_github_comment)d"
+                            attrs="{'invisible': [('comment_qty', '=', False)]}"
+                            context="{'search_default_issue_id': active_id}">
+                            <div><strong><field name="comment_qty"/></strong><br/>Comments</div>
+                        </button>
+                    </div>
+                    <div class="oe_clear"/>
+                    <group col="4">
+                        <field name="issue_type"/>
+                        <field name="repository_id"/>
+                        <field name="author_id"/>
+                    </group>
+                    <notebook>
+                        <page string="Comments">
+                            <field name="body" colspan="4" nolabel="1"/>
+                            <field name="comment_ids" colspan="4" nolabel="1"/>
+                        </page>
+                        <page name="github" string="Github">
+                            <group col="4">
+                                <field name="github_url" widget="url" colspan="4"/>
+                                <field name="github_id" />
+                                <field name="github_login" />
+                                <field name="github_create_date" />
+                                <field name="github_write_date" />
+                                <field name="github_last_sync_date" />
+                                <button name="button_update_from_github_light" type="object" string="Light Sync" icon="STOCK_REFRESH"/>
+                                <button name="button_update_from_github_full" type="object" string="Full Sync" icon="STOCK_REFRESH"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
         </field>
     </record>
 

@@ -44,12 +44,13 @@ _GITHUB_TYPE_URL = {
 class AbtractGithubModel(models.AbstractModel):
     _name = 'abstract.github.model'
     _github_type = None
+    _github_login_field = None
     
     github_id = fields.Char(
-        string='Github Id', readonly=True)
+        string='Github Id', readonly=True, select=True)
 
     github_login = fields.Char(
-        string='Github Technical Name', readonly=True)
+        string='Github Technical Name', readonly=True, select=True)
 
     github_url = fields.Char(
         string='Github URL', readonly=True)
@@ -65,20 +66,20 @@ class AbtractGithubModel(models.AbstractModel):
 
     # Overloadable Section
     def github_type(self):
-        if _github_type is None:
+        if self._github_type is None:
             raise exceptions.Warning(
                 _("Unimplemented Feature"),
                 _("Please define github_type function in child model."))
         else:
-            return _github_type
+            return self._github_type
 
     def github_login_field(self):
-        if _github_login_field is None:
+        if self._github_login_field is None:
             raise exceptions.Warning(
                 _("Unimplemented Feature"),
                 _("Please define github_login_field function in child model."))
         else:
-            return _github_login_field
+            return self._github_login_field
 
     @api.model
     def get_odoo_data_from_github(self, data):

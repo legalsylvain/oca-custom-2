@@ -47,7 +47,7 @@ class GithubIssue(models.Model):
     @api.depends('comment_ids', 'comment_ids.issue_id')
     def _compute_comment_qty(self):
         for issue in self:
-            issue.issue_qty = len(issue.comment_ids)
+            issue.comment_qty = len(issue.comment_ids)
 
     # Overloadable Section
     def get_odoo_data_from_github(self, data):

@@ -22,6 +22,22 @@ class ResPartner(models.Model):
     team_qty = fields.Integer(
         string='Teams Quantity', compute='_compute_team_qty', store=True)
 
+    organization_ids = fields.Many2many(
+        string='Organizations', comodel_name='github.organization',
+        relation='github_organization_partner_rel', column1='partner_id',
+        column2='organization_id', readonly=True)
+
+    organization_qty = fields.Integer(
+        string='Organizations Quantity', compute='_compute_organization_qty',
+        store=True)
+
+    # Compute Section
+    @api.multi
+    @api.depends('organization_ids')
+    def _compute_organization_qty(self):
+        for partner in self:
+            partner.organization_qty = len(partner.organization_ids)
+
     # Constraints Section
     _sql_constraints = [
         (
