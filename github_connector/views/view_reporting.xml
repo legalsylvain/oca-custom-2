@@ -33,4 +33,32 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
         </field>
     </record>
 
+    <record id="view_github_size_by_serie_graph" model="ir.ui.view">
+        <field name="model">github.repository.branch</field>
+        <field name="arch" type="xml">
+            <graph type="bar" stacked="True">
+                <field name="organization_serie_id" type="row"/>
+                <field name="mb_size" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_git_commit_by_repository_graph" model="ir.ui.view">
+        <field name="model">git.commit</field>
+        <field name="arch" type="xml">
+            <graph type="bar">
+                <field name="repository_id" type="row"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_git_commit_by_month_graph" model="ir.ui.view">
+        <field name="model">git.commit</field>
+        <field name="arch" type="xml">
+            <graph type="bar">
+                <field name="authored_date" type="row"/>
+            </graph>
+        </field>
+    </record>
+
 </data></openerp>

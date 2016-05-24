@@ -26,6 +26,10 @@ class GithubRepository(models.Model):
     name = fields.Char(
         string='Name', select=True, required=True, readonly=True)
 
+    complete_name = fields.Char(
+        string='Complete Name', readonly=True,
+        compute='_compute_complete_name', store=True)
+
     description = fields.Char(string='Description', readonly=True)
 
     website = fields.Char(string='Website', readonly=True)
@@ -67,6 +71,13 @@ class GithubRepository(models.Model):
         multi='issue', store=True)
 
     # Compute Section
+    @api.multi
+    @api.depends('name', 'organization_id.github_login')
+    def _compute_complete_name(self):
+        for repository in self:
+            repository.complete_name =\
+                repository.organization_id.github_login + '/' + repository.name
+
     @api.multi
     @api.depends('issue_ids.repository_id')
     def _compute_issue_qty(self):
