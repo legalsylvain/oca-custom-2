@@ -37,7 +37,7 @@ _GITHUB_TYPE_URL = {
     'team_members': {'url': 'teams/%s/members'},
     'repository_issues': {'url': 'repos/%s/issues?state=all'},
     'issue_comments': {'url': 'repos/%s/issues/%s/comments'},
-    #    'repository_branches': {'url': 'repos/%s/branches', 'max': 100},
+    'repository_branches': {'url': 'repos/%s/branches'},
 }
 
 """
