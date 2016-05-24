@@ -1,5 +1,6 @@
 # -#- coding: utf-8 -#-
 
+from . import github
 from . import abstract_github_model
 from . import abstract_github_model_author
 
