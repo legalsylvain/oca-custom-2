@@ -63,4 +63,20 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
         name="Sync Object"
         action="action_wizard_load_github_model"/>
 
+    <!-- Reporting Part -->
+    <menuitem id="menu_github_reporting"
+        parent="base.menu_reporting"
+        sequence="10"
+        name="Github"/>
+
+    <menuitem id="menu_issue_by_company"
+        parent="menu_github_reporting"
+        sequence="1"
+        action="action_github_issue_by_company"/>
+
+    <menuitem id="menu_comment_by_company"
+        parent="menu_github_reporting"
+        sequence="2"
+        action="action_github_comment_by_company"/>
+
 </data></openerp>

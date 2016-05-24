@@ -22,9 +22,10 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
         <field name="model">github.comment</field>
         <field name="arch" type="xml">
             <tree>
-                <field name="author_id"/>
                 <field name="github_create_date"/>
+                <field name="author_id"/>
                 <field name="html_body"/>
+                <field name="company_author_id"/>
             </tree>
         </field>
     </record>
@@ -38,6 +39,7 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
                         <group col="4">
                             <field name="issue_id"/>
                             <field name="author_id"/>
+                            <field name="company_author_id"/>
                             <field name="html_body" widget="html" colspan="4" nolabel="1"/>
                         </group>
                     <notebook>

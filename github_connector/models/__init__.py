@@ -13,4 +13,6 @@ from . import github_team
 from . import github_comment
 
 from . import wizard_load_github_model
-from . import wizard_update_github_model
+
+from . import wizard_update_from_github
+from . import wizard_update_company_author

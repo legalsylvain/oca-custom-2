@@ -18,10 +18,14 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
                 <field name="author_id"/>
                 <field name="company_author_id"/>
                 <field name="state"/>
-                <filter name="filter_open_issue" string="Open Issues" domain="[('state','=', 'open')]"/>
-                <filter name="group_by_author_id" string="By Author" context="{'group_by': 'author_id'}" />
-                <filter name="group_by_repository_id" string="By Repository" context="{'group_by': 'repository_id'}" />
-                <filter name="group_by_issue_type" string="By Type" context="{'group_by': 'issue_type'}" />
+                <filter name="filter_open_issue" string="Open Issues + PR" domain="[('state', '=', 'open')]"/>
+                <filter name="filter_with_company" string="Company Defined" domain="[('company_author_id', '!=', False)]"/>
+                <group expand="1" string="Group By">
+                    <filter name="group_by_author_id" string="By Author" context="{'group_by': 'author_id'}" />
+                    <filter name="group_by_company_author_id" string="By Company" context="{'group_by': 'company_author_id'}" />
+                    <filter name="group_by_repository_id" string="By Repository" context="{'group_by': 'repository_id'}" />
+                    <filter name="group_by_issue_type" string="By Type" context="{'group_by': 'issue_type'}" />
+                </group>
             </search>
         </field>
     </record>
@@ -30,13 +34,16 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
         <field name="model">github.issue</field>
         <field name="arch" type="xml">
             <tree colors="gray:state=='closed'; red:issue_type=='issue'; black:issue_type=='pull_request'">
-                <field name="repository_id"/>
-                <field name="author_id"/>
+                <field name="github_create_date"/>
                 <field name="title"/>
                 <field name="comment_qty"/>
                 <field name="state" invisible="1"/>
                 <field name="issue_type"/>
+                <field name="repository_id"/>
+                <field name="author_id"/>
+                <field name="company_author_id"/>
             </tree>
+            
         </field>
     </record>
 
@@ -45,6 +52,16 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
         <field name="arch" type="xml">
             <graph type="bar">
                 <field name="author_id" type="row"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_github_issue_by_company_graph" model="ir.ui.view">
+        <field name="model">github.issue</field>
+        <field name="arch" type="xml">
+            <graph type="bar" stacked="True">
+                <field name="author_id" type="row"/>
+                <field name="company_author_id" type="row"/>
             </graph>
         </field>
     </record>
@@ -72,6 +89,7 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
                         <field name="issue_type"/>
                         <field name="repository_id"/>
                         <field name="author_id"/>
+                        <field name="company_author_id"/>
                     </group>
                     <notebook>
                         <page string="Comments">

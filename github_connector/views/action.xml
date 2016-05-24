@@ -68,11 +68,41 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
         <field name="target">new</field>
     </record>
 
-    <record id="action_wizard_update_github_model" model="ir.actions.act_window" >
+    <record id="action_wizard_update_from_github" model="ir.actions.act_window" >
         <field name="name">Update from Github</field>
-        <field name="res_model">wizard.update.github.model</field>
+        <field name="res_model">wizard.update.from.github</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
+    </record>
+
+    <record id="action_wizard_update_company_author" model="ir.actions.act_window" >
+        <field name="name">Update Company Author</field>
+        <field name="res_model">wizard.update.company.author</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Reporting Part -->
+    <record id="action_github_issue_by_company" model="ir.actions.act_window">
+        <field name="name">Issues + PR by company</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">github.issue</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">graph</field>
+        <field name="context">{'search_default_group_by_company_author_id': True}</field>
+        <field name="domain">[('company_author_id', '!=', False)]</field>
+        <field name="view_id" ref="view_github_issue_by_company_graph" />
+    </record>
+
+    <record id="action_github_comment_by_company" model="ir.actions.act_window">
+        <field name="name">Comments by company</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">github.comment</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">graph</field>
+        <field name="context">{'search_default_group_by_company_author_id': True}</field>
+        <field name="domain">[('company_author_id', '!=', False)]</field>
+        <field name="view_id" ref="view_github_comment_by_company_graph" />
     </record>
 
 </data></openerp>

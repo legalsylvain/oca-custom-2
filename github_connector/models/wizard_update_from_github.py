@@ -6,14 +6,14 @@
 from openerp import models, fields, api
 
 
-class WizardUpdateGithubModel(models.TransientModel):
-    _name = 'wizard.update.github.model'
+class WizardUpdateFromGithub(models.TransientModel):
+    _name = 'wizard.update.from.github'
 
     # Columns Section
     child_update = fields.Boolean(string='Update Child Objects', default=False)
 
     @api.multi
-    def button_update_github_model(self):
+    def button_update_from_github(self):
         for wizard in self:
             model_obj = self.env[self._context['active_model']]
             for item in model_obj.browse(self._context['active_ids']):
