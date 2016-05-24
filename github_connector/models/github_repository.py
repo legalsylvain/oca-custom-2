@@ -30,6 +30,14 @@ class GithubRepository(models.Model):
 
     website = fields.Char(string='Website', readonly=True)
 
+    repository_branch_ids = fields.One2many(
+        comodel_name='github.repository.branch',
+        inverse_name='repository_id', string='Branches', readonly=True)
+
+    repository_branch_qty = fields.Integer(
+        string='Branches Quantity', compute='_compute_repository_branch_qty',
+        store=True)
+
     issue_ids = fields.One2many(
         string='Issues + PR', comodel_name='github.issue',
         inverse_name='repository_id', readonly=True)
@@ -84,6 +92,13 @@ class GithubRepository(models.Model):
             repository.open_issue_qty =\
                 only_open_issue_qty + only_open_pull_request_qty
 
+    @api.multi
+    @api.depends('repository_branch_ids.repository_id')
+    def _compute_repository_branch_qty(self):
+        for repository in self:
+            repository.repository_branch_qty =\
+                len(repository.repository_branch_ids)
+
     # Overloadable Section
     @api.model
     def get_odoo_data_from_github(self, data):
@@ -116,9 +131,30 @@ class GithubRepository(models.Model):
                 issue_ids.append(issue.id)
             repository.issue_ids = issue_ids
 
-    # Action section
     @api.multi
     def button_sync_issue_with_comment(self):
         self.button_sync_issue()
         for repository in self:
             repository.issue_ids.button_sync_comment()
+
+    @api.multi
+    def button_sync_branch(self):
+        branch_obj = self.env['github.repository.branch']
+        for repository in self:
+            branch_ids = []
+            for data in self.get_datalist_from_github(
+                    'repository_branches', [repository.github_login]):
+                # We don't use get_from_id_or_create because repository
+                # branches does not have any ids. (very basic object in the
+                # Github API)
+                if True: # branch_data['name'] in correct_series:
+                    branch = branch_obj.create_or_update_from_name(
+                        repository.id, data['name'])
+                else:
+                    _logger.warning(
+                        "the branch '%s'/'%s' has been ignored." % (
+                            repository.complete_name, data['name']))
+#                branch = branch_obj.get_from_id_or_create(
+#                    data, {'repository_id': repository.id})
+                branch_ids.append(branch.id)
+            repository.branch_ids = branch_ids

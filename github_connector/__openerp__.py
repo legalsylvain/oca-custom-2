@@ -12,23 +12,19 @@
         'base',
     ],
     'data': [
-
         'data/ir_config_parameter.xml',
         'views/view_wizard_update_from_github.xml',
         'views/view_wizard_update_company_author.xml',
-
         'views/view_reporting.xml',
         'views/action.xml',
         'views/view_res_partner.xml',
         'views/view_github_organization.xml',
         'views/view_wizard_load_github_model.xml',
-
         'views/view_github_repository.xml',
-        #        'views/view_github_repository_branch.xml',
+        'views/view_github_repository_branch.xml',
         'views/view_github_team.xml',
         'views/view_github_issue.xml',
         'views/view_github_comment.xml',
-        #        'views/view_wizard_github_repository_branch.xml',
         'views/menu.xml',
     ],
     'demo': [
