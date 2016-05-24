@@ -7,6 +7,7 @@ import logging
 import os
 
 from git import Repo
+
 from subprocess import check_output
 from datetime import datetime
 
