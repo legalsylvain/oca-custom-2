@@ -53,6 +53,7 @@ class AbtractGithubModel(models.AbstractModel):
     _name = 'abstract.github.model'
     _github_type = None
     _github_login_field = None
+    _need_individual_call = False
 
     github_id = fields.Char(
         string='Github Id', readonly=True, select=True)
@@ -121,8 +122,9 @@ class AbtractGithubModel(models.AbstractModel):
         """
         res = self.search([('github_id', '=', data['id'])])
         if not res:
-            full_data = self._get_data_from_github_url(data['url'])
-            return self._create_from_github_data(full_data, extra_data)
+            if self._need_individual_call:
+                data = self._get_data_from_github_url(data['url'])
+            return self._create_from_github_data(data, extra_data)
         else:
             return res
 

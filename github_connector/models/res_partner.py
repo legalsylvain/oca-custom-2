@@ -13,6 +13,7 @@ class ResPartner(models.Model):
 
     _github_type = 'user'
     _github_login_field = 'login'
+    _need_individual_call = True
 
     # Column Section
     team_ids = fields.Many2many(
