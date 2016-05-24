@@ -106,11 +106,11 @@ class GithubOrganization(models.Model):
     # Action section
     @api.multi
     def button_sync_member(self):
+        github_member = self.get_github_for('organization_members')
         partner_obj = self.env['res.partner']
         for organization in self:
             member_ids = []
-            for data in self.get_datalist_from_github(
-                    'organization_members', [organization.github_login]):
+            for data in github_member.list([organization.github_login]):
                 partner = partner_obj.get_from_id_or_create(data)
                 member_ids.append(partner.id)
             organization.member_ids = member_ids
@@ -118,12 +118,13 @@ class GithubOrganization(models.Model):
     @api.multi
     def button_sync_repository(self):
         repository_obj = self.env['github.repository']
+        github_repo = self.get_github_for('organization_repositories')
         for organization in self:
             repository_ids = []
             ignored_list = organization.ignored_repository_names and\
                 organization.ignored_repository_names.split("\n") or []
-            for data in self.get_datalist_from_github(
-                    'organization_repositories', [organization.github_login]):
+
+            for data in github_repo.list([organization.github_login]):
                 if data['name'] not in ignored_list:
                     repository = repository_obj.get_from_id_or_create(data)
                     repository_ids.append(repository.id)
@@ -132,10 +133,10 @@ class GithubOrganization(models.Model):
     @api.multi
     def button_sync_team(self):
         team_obj = self.env['github.team']
+        github_team = self.get_github_for('organization_teams')
         for organization in self:
             team_ids = []
-            for data in self.get_datalist_from_github(
-                    'organization_teams', [organization.github_login]):
+            for data in github_team.list([organization.github_login]):
                 team = team_obj.get_from_id_or_create(
                     data, {'organization_id': organization.id})
                 team_ids.append(team.id)

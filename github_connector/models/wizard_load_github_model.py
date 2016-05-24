@@ -5,7 +5,7 @@
 
 from openerp import models, fields, api
 
-from .abstract_github_model import _GITHUB_TYPE
+from .github import _GITHUB_TYPE
 
 
 class WizardLoadGithubModel(models.TransientModel):

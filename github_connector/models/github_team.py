@@ -56,10 +56,10 @@ class GithubTeam(models.Model):
     @api.multi
     def button_sync_member(self):
         partner_obj = self.env['res.partner']
+        github_member = self.get_github_for('team_members')
         for team in self:
             member_ids = []
-            for data in self.get_datalist_from_github(
-                    'team_members', [team.github_id]):
+            for data in github_member.list([team.github_id]):
                 partner = partner_obj.get_from_id_or_create(data)
                 member_ids.append(partner.id)
             team.member_ids = member_ids

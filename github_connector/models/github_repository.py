@@ -121,11 +121,11 @@ class GithubRepository(models.Model):
     # Action section
     @api.multi
     def button_sync_issue(self):
+        github_issue = self.get_github_for('repository_issues')
         issue_obj = self.env['github.issue']
         for repository in self:
             issue_ids = []
-            for data in self.get_datalist_from_github(
-                    'repository_issues', [repository.github_login]):
+            for data in github_issue.list([repository.github_login]):
                 issue = issue_obj.get_from_id_or_create(
                     data, {'repository_id': repository.id})
                 issue_ids.append(issue.id)

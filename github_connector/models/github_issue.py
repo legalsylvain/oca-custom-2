@@ -64,11 +64,11 @@ class GithubIssue(models.Model):
     # Action section
     @api.multi
     def button_sync_comment(self):
+        github_comment = self.get_github_for('issue_comments')
         comment_obj = self.env['github.comment']
         for issue in self:
             comment_ids = []
-            for data in self.get_datalist_from_github(
-                    'issue_comments',
+            for data in github_comment.list(
                     [issue.repository_id.github_login, issue.github_login]):
                 comment = comment_obj.get_from_id_or_create(
                     data, {'issue_id': issue.id})
