@@ -136,7 +136,8 @@ class GithubOrganization(models.Model):
             team_ids = []
             for data in self.get_datalist_from_github(
                     'organization_teams', [organization.github_login]):
-                team = team_obj.get_from_id_or_create(data)
+                team = team_obj.get_from_id_or_create(
+                    data, {'organization_id': organization.id})
                 team_ids.append(team.id)
             organization.team_ids = team_ids
 
