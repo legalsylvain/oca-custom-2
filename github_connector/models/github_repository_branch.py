@@ -181,7 +181,7 @@ class GithubRepository(models.Model):
             self.env['ir.config_parameter'].get_param(
                 'git.partial_commit_during_analyze'))
         for branch in self:
-            path = self.local_path
+            path = branch.local_path
             if not os.path.exists(path):
                 _logger.warning(
                     "Warning Folder %s not found. Analyze skipped." % (path))
