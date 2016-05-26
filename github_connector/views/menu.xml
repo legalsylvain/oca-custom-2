@@ -120,9 +120,9 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
         sequence="1"
         action="action_git_commit_by_repository"/>
 
-    <menuitem id="menu_git_commit_by_month"
+    <menuitem id="menu_git_commit_by_month_and_serie"
         parent="menu_git_reporting"
         sequence="2"
-        action="action_git_commit_by_month"/>
+        action="action_git_commit_by_month_and_serie"/>
 
 </data></openerp>

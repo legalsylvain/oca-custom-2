@@ -50,6 +50,11 @@ class GitCommit(models.Model):
         related='repository_id.organization_id', store=True,
         readonly=True)
 
+    organization_serie_id = fields.Many2one(
+        comodel_name='github.organization.serie', string='Organization Serie',
+        related='repository_branch_id.organization_serie_id', store=True,
+        readonly=True)
+
     insertions_qty = fields.Integer(string='Insertions Qty', readonly=True)
     deletions_qty = fields.Integer(string='Deletions Qty', readonly=True)
     lines_qty = fields.Integer(string='Lines Qty', readonly=True)
@@ -68,8 +73,10 @@ class GitCommit(models.Model):
 
     # Custom Section
     @api.model
-    def create_with_git_data(self, myGitCommit, repository_branch):
+    def create_or_replace_with_git_data(self, myGitCommit, repository_branch):
         git_author_obj = self.env['git.author']
+        self.search([('name', '=', myGitCommit.hexsha)]).with_context(
+            dont_change_repository_branch_state=True).unlink()
         author = git_author_obj.create_if_not_exist(myGitCommit.author)
         return self.create({
             'name': myGitCommit.hexsha,

@@ -161,8 +161,15 @@ class GithubRepository(models.Model):
 
         # Analyse Commits
         new_commits = 0
+        # here is commits of all branches, to avoid to duplicate commits :
+        # all commits done on a 8.0 serie will be present on the 9.0 when the
+        # 9.0 serie is created. To avoid that side effect we consider that 9.0
+        # commits are only ones that are not present on 8.0 serie.
+        ignore_branches = self.search([
+            ('repository_id', '=', branch.repository_id.id),
+            ('name', '<=', branch.name)])
         existing_commits = commit_obj.search([
-            ('repository_branch_id', '=', branch.id)])
+            ('repository_branch_id', 'in', ignore_branches.ids)])
         existing_names = [x.name for x in existing_commits]
         repo = Repo(path)
         commit_lst = list(repo.iter_commits(branch.name))
@@ -171,7 +178,7 @@ class GithubRepository(models.Model):
         for commit in commit_lst:
             if commit.hexsha not in existing_names:
                 new_commits += 1
-                commit_obj.create_with_git_data(commit, branch)
+                commit_obj.create_or_replace_with_git_data(commit, branch)
         _logger.info("%d new commits created." % (new_commits))
         return {'size': size}
 

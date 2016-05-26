@@ -180,15 +180,13 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
         <field name="view_id" ref="view_git_commit_by_repository_graph" />
     </record>
 
-    <record id="action_git_commit_by_month" model="ir.actions.act_window">
-        <field name="name">Commits by Months</field>
+    <record id="action_git_commit_by_month_and_serie" model="ir.actions.act_window">
+        <field name="name">Commits by Months and Series</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">git.commit</field>
         <field name="view_type">form</field>
         <field name="view_mode">graph</field>
-        <field name="view_id" ref="view_git_commit_by_month_graph" />
+        <field name="view_id" ref="view_git_commit_by_month_and_serie_graph" />
     </record>
 
 </data></openerp>
-
-

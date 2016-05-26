@@ -43,7 +43,7 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
                         </h3>
                     </div>
                     <div class="oe_right oe_button_box" name="buttons">
-                        <button type="action" class="oe_stat_button" icon="fa-bar-chart" name="%(action_git_commit_by_month)d"
+                        <button type="action" class="oe_stat_button" icon="fa-bar-chart" name="%(action_git_commit_by_month_and_serie)d"
                             attrs="{'invisible': [('commit_qty', '=', False)]}"
                             context="{'search_default_author_id': active_id}">
                             <div><strong><field name="commit_qty"/></strong><br/>Commits</div>
