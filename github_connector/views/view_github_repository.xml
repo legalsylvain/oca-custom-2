@@ -37,9 +37,12 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <button name="button_sync_branch" type="object" string="Branches Sync." icon="STOCK_REFRESH"/>
-                    <button name="button_sync_issue" type="object" string="Issues + PR Sync." icon="STOCK_REFRESH"/>
-                    <button name="button_sync_issue_with_comment" type="object" string="Issues + PR and Comments Sync." icon="STOCK_REFRESH"/>
+                    <button name="button_sync_branch" type="object" string="Branches Sync." icon="STOCK_REFRESH"
+                        groups="base.group_erp_manager"/>
+                    <button name="button_sync_issue" type="object" string="Issues + PR Sync." icon="STOCK_REFRESH"
+                        groups="base.group_erp_manager"/>
+                    <button name="button_sync_issue_with_comment" type="object" string="Issues + PR and Comments Sync." icon="STOCK_REFRESH"
+                        groups="base.group_erp_manager"/>
                 </header>
                 <sheet>
                     <div class="oe_title">
@@ -85,13 +88,15 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
                                 <field name="github_create_date" />
                                 <field name="github_write_date" />
                                 <field name="github_last_sync_date" />
-                                <button name="button_update_from_github_light" type="object" string="Light Sync" icon="STOCK_REFRESH"/>
-                                <button name="button_update_from_github_full" type="object" string="Full Sync" icon="STOCK_REFRESH"/>
+                                <button name="button_update_from_github_light" type="object" string="Light Sync" icon="STOCK_REFRESH"
+                                    groups="base.group_erp_manager"/>
+                                <button name="button_update_from_github_full" type="object" string="Full Sync" icon="STOCK_REFRESH"
+                                    groups="base.group_erp_manager"/>
                             </group>
                         </page>
-<!--                        <page string="Branches">-->
-<!--                            <field name="repository_branch_ids" colspan="4" nolabel="1"/>-->
-<!--                        </page>-->
+                        <page string="Branches">
+                            <field name="repository_branch_ids" colspan="4" nolabel="1"/>
+                        </page>
                     </notebook>
                 </sheet>
             </form>
