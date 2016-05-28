@@ -10,8 +10,8 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
         <field name="model">github.organization</field>
         <field name="arch" type="xml">
             <search>
-                <field name="name"/>
-                <field name="github_login"/>
+                <field name="name" string="Name or Github Name"
+                    filter_domain="['|', ('name', 'ilike', self), ('github_login', 'ilike', self)]"/>
             </search>
         </field>
     </record>

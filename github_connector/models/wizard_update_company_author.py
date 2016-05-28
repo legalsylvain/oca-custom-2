@@ -17,8 +17,6 @@ class WizardUpdateCompanyAuthor(models.TransientModel):
     @api.multi
     def button_update_company_author(self):
         for wizard in self:
-            pass
-#            model_obj = self.env[self._context['active_model']]
-#            for item in model_obj.browse(self._context['active_ids']):
-#                item.update_from_github(wizard.child_update)
-#                self._cr.commit()
+            model_obj = self.env[self._context['active_model']]
+            items = model_obj.browse(self._context['active_ids'])
+            items.company_author_id = wizard.corporate_partner_id

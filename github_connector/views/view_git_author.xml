@@ -10,8 +10,14 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
         <field name="model">git.author</field>
         <field name="arch" type="xml">
             <search>
-                <field name="name"/>
-                <field name="email"/>
+                <field name="name" string="Name or Email"
+                    filter_domain="['|', ('name', 'ilike', self), ('email', 'ilike', self)]"/>
+                <field name="partner_id"/>
+                <field name="company_partner_id"/>
+                <group expand="1" string="Group By">
+                    <filter name="group_by_partner_id" string="Partner" context="{'group_by': 'partner_id'}" />
+                    <filter name="group_by_company_partner_id" string="Partner Company" context="{'group_by': 'company_partner_id'}" />
+                </group>
             </search>
         </field>
     </record>

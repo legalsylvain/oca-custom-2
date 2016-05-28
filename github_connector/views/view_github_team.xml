@@ -10,11 +10,14 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
         <field name="model">github.team</field>
         <field name="arch" type="xml">
             <search>
-                <field name="name"/>
+                <field name="name" string="Name or Github Name"
+                    filter_domain="['|', ('name', 'ilike', self), ('github_login', 'ilike', self)]"/>
                 <field name="github_login"/>
                 <field name="organization_id"/>
                 <field name="member_ids"/>
-                <filter string="Organization" context="{'group_by' : 'organization_id'}"/>
+                <group expand="1" string="Group By">
+                    <filter string="Organization" context="{'group_by' : 'organization_id'}"/>
+                </group>
             </search>
         </field>
     </record>

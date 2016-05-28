@@ -10,10 +10,12 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
         <field name="model">github.repository</field>
         <field name="arch" type="xml">
             <search>
-                <field name="name"/>
-                <field name="github_login"/>
+                <field name="name" string="Name or Description"
+                    filter_domain="['|', ('name', 'ilike', self), ('description', 'ilike', self)]"/>
                 <field name="organization_id"/>
-                <filter string="Organization" context="{'group_by' : 'organization_id'}"/>
+                <group expand="1" string="Group By">
+                    <filter string="Organization" context="{'group_by' : 'organization_id'}"/>
+                </group>
             </search>
         </field>
     </record>
@@ -22,8 +24,8 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
         <field name="model">github.repository</field>
         <field name="arch" type="xml">
             <tree>
-                <field name="organization_id"/>
                 <field name="name"/>
+                <field name="description"/>
                 <field name="repository_branch_qty" string="# Branches"/>
                 <field name="issue_qty" string="# Issues + PR"/>
                 <field name="only_issue_qty" string="# Issues"/>

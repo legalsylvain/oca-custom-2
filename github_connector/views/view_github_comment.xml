@@ -10,10 +10,17 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
         <field name="model">github.comment</field>
         <field name="arch" type="xml">
             <search>
-                <field name="body"/>
+                <field name="body" string="Body"
+                    filter_domain="[('body', 'ilike', self)]"/>
+                <field name="issue_id"/>
                 <field name="author_id"/>
                 <field name="company_author_id"/>
-                <field name="issue_id"/>
+                <filter name="filter_approved_comment" string="Approved" domain="[('opinion', '=', 'approved')]"/>
+                <filter name="filter_disapproved_comment" string="Dispproved" domain="[('opinion', '=', 'disapproved')]"/>
+                <group expand="1" string="Group By">
+                    <filter name="group_by_author_id" string="Author" context="{'group_by': 'author_id'}" />
+                    <filter name="group_by_company_author_id" string="Author Company" context="{'group_by': 'company_author_id'}" />
+                </group>
             </search>
         </field>
     </record>
@@ -21,11 +28,16 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
     <record id="view_github_comment_tree" model="ir.ui.view">
         <field name="model">github.comment</field>
         <field name="arch" type="xml">
-            <tree>
-                <field name="github_create_date"/>
+            <tree colors="gray:is_bot_comment == True; red:opinion=='disapproved'; green:opinion=='approved';">
+                <field name="github_create_date" string="Date"/>
                 <field name="author_id"/>
-                <field name="html_body"/>
+                <!-- TODO / FIXME
+                    - PR against Odoo / OCB to fix html widget that doesn't work on tree view;
+                    - replace "body" by "html_body" and widget="html"-->
+                <field name="body"/>
                 <field name="company_author_id"/>
+                <field name="opinion" invisible="1"/>
+                <field name="is_bot_comment" invisible="1"/>
             </tree>
         </field>
     </record>
@@ -40,6 +52,8 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
                             <field name="issue_id"/>
                             <field name="author_id"/>
                             <field name="company_author_id"/>
+                            <field name="opinion"/>
+                            <newline/>
                             <field name="html_body" widget="html" colspan="4" nolabel="1"/>
                         </group>
                     <notebook>

@@ -38,12 +38,29 @@ class GithubIssue(models.Model):
         string='Comments Quantity', compute='_compute_comment_qty',
         store=True)
 
+    approved_comment_qty = fields.Integer(
+        string='Approved Comments Quantity', compute='_compute_opinion',
+        multi='opinion', store=True)
+
+    disapproved_comment_qty = fields.Integer(
+        string='Disapproved Comments Quantity', compute='_compute_opinion',
+        multi='opinion', store=True)
+
+
     # Compute Section
     @api.multi
-    @api.depends('comment_ids', 'comment_ids.issue_id')
+    @api.depends('comment_ids.issue_id')
     def _compute_comment_qty(self):
         for issue in self:
             issue.comment_qty = len(issue.comment_ids)
+
+    @api.depends('comment_ids.opinion')
+    def _compute_opinion(self):
+        for issue in self:
+            issue.approved_comment_qty =\
+                issue.mapped('comment_ids.opinion').count('approved')
+            issue.disapproved_comment_qty =\
+                issue.mapped('comment_ids.opinion').count('disapproved')
 
     # Overloadable Section
     def get_odoo_data_from_github(self, data):

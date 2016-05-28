@@ -16,6 +16,10 @@ class ResPartner(models.Model):
     _need_individual_call = True
 
     # Column Section
+    is_bot_account = fields.Boolean(
+        string='Is Bot Github Account', help="Check this box if this"
+        "account is a bot, or something similar.")
+
     team_ids = fields.Many2many(
         string='Teams', comodel_name='github.team',
         relation='github_team_partner_rel', column1='partner_id',
