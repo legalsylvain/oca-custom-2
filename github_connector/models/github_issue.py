@@ -58,7 +58,8 @@ class GithubIssue(models.Model):
     @api.depends('body')
     def _compute_html_body(self):
         for issue in self:
-            issue.html_body = markdown.markdown(issue.body)
+            if issue.body:
+                issue.html_body = markdown.markdown(issue.body)
 
     @api.multi
     @api.depends('comment_ids.issue_id')

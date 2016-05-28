@@ -47,7 +47,8 @@ class GithubComment(models.Model):
     @api.depends('body')
     def _compute_by_body(self):
         for comment in self:
-            comment.html_body = markdown.markdown(comment.body)
+            if comment.body:
+                comment.html_body = markdown.markdown(comment.body)
             if ':-1:' in comment.body:
                 comment.opinion = 'disapproved'
             elif ':+1:' in comment.body:
