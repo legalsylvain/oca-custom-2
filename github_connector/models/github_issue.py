@@ -3,6 +3,8 @@
 # @author: Sylvain LE GAL (https://twitter.com/legalsylvain)
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
+import markdown
+
 from openerp import models, fields, api
 
 
@@ -26,6 +28,10 @@ class GithubIssue(models.Model):
 
     body = fields.Char(string='Body', readonly=True)
 
+    html_body = fields.Html(
+        string='HTML Body', readonly=True, compute='_compute_html_body',
+        store=True)
+
     state = fields.Selection(selection=[
         ('open', 'Open'), ('closed', 'Closed')],
         string='State', readonly=True, required=True)
@@ -47,7 +53,13 @@ class GithubIssue(models.Model):
         multi='opinion', store=True)
 
 
-    # Compute Section
+    # Compute section
+    @api.multi
+    @api.depends('body')
+    def _compute_html_body(self):
+        for issue in self:
+            issue.html_body = markdown.markdown(issue.body)
+
     @api.multi
     @api.depends('comment_ids.issue_id')
     def _compute_comment_qty(self):

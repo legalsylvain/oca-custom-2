@@ -102,7 +102,7 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
                     </group>
                     <notebook>
                         <page string="Comments">
-                            <field name="body" colspan="4" nolabel="1"/>
+                            <field name="html_body" colspan="4" nolabel="1" widget="html"/>
                             <field name="comment_ids" colspan="4" nolabel="1"/>
                         </page>
                         <page name="github" string="Github">
