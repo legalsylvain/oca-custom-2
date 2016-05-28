@@ -73,7 +73,7 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
     <record id="view_git_author_partner_company" model="ir.ui.view">
         <field name="model">git.author</field>
-        <field name="sequence">50</field>
+        <field name="priority">50</field>
         <field name="arch" type="xml">
             <tree editable="bottom">
                 <field name="name"/>
