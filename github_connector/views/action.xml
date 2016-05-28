@@ -114,6 +114,15 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
         <field name="target">new</field>
     </record>
 
+    <record id="action_git_author_partner_company" model="ir.actions.act_window">
+        <field name="name">Git Authors</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">git.author</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_git_author_partner_company"/>
+    </record>
+
     <record id="action_wizard_update_from_github" model="ir.actions.act_window" >
         <field name="name">Update from Github</field>
         <field name="res_model">wizard.update.from.github</field>

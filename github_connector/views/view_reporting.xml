@@ -62,4 +62,17 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
         </field>
     </record>
 
+    <record id="view_git_author_partner_company" model="ir.ui.view">
+        <field name="model">git.author</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom">
+                <field name="name"/>
+                <field name="email"/>
+                <field name="commit_qty"/>
+                <field name="partner_id"/>
+                <field name="company_partner_id"/>
+            </tree>
+        </field>
+    </record>
+
 </data></openerp>

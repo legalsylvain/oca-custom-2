@@ -80,9 +80,15 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
     <menuitem id="menu_wizard_load_github_model"
         parent="menu_github_settings"
-        sequence="10"
+        sequence="1"
         name="Sync Object"
         action="action_wizard_load_github_model"/>
+
+    <menuitem id="menu_git_author_partner_company"
+        parent="menu_github_settings"
+        sequence="2"
+        name="Git Authors"
+        action="action_git_author_partner_company"/>
 
     <!-- Reporting Part -->
     <menuitem id="menu_github_reporting"
