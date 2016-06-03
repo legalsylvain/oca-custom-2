@@ -3,6 +3,8 @@
 # @author: Sylvain LE GAL (https://twitter.com/legalsylvain)
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
+import markdown
+
 from openerp import models, fields, api
 
 
@@ -26,6 +28,10 @@ class GithubIssue(models.Model):
 
     body = fields.Char(string='Body', readonly=True)
 
+    html_body = fields.Html(
+        string='HTML Body', readonly=True, compute='_compute_html_body',
+        store=True)
+
     state = fields.Selection(selection=[
         ('open', 'Open'), ('closed', 'Closed')],
         string='State', readonly=True, required=True)
@@ -38,12 +44,36 @@ class GithubIssue(models.Model):
         string='Comments Quantity', compute='_compute_comment_qty',
         store=True)
 
-    # Compute Section
+    approved_comment_qty = fields.Integer(
+        string='Approved Comments Quantity', compute='_compute_opinion',
+        multi='opinion', store=True)
+
+    disapproved_comment_qty = fields.Integer(
+        string='Disapproved Comments Quantity', compute='_compute_opinion',
+        multi='opinion', store=True)
+
+
+    # Compute section
     @api.multi
-    @api.depends('comment_ids', 'comment_ids.issue_id')
+    @api.depends('body')
+    def _compute_html_body(self):
+        for issue in self:
+            if issue.body:
+                issue.html_body = markdown.markdown(issue.body)
+
+    @api.multi
+    @api.depends('comment_ids.issue_id')
     def _compute_comment_qty(self):
         for issue in self:
             issue.comment_qty = len(issue.comment_ids)
+
+    @api.depends('comment_ids.opinion')
+    def _compute_opinion(self):
+        for issue in self:
+            issue.approved_comment_qty =\
+                issue.mapped('comment_ids.opinion').count('approved')
+            issue.disapproved_comment_qty =\
+                issue.mapped('comment_ids.opinion').count('disapproved')
 
     # Overloadable Section
     def get_odoo_data_from_github(self, data):

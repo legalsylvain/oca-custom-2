@@ -16,6 +16,12 @@ class GithubComment(models.Model):
     _github_type = 'issue'
     _github_login_field = False
 
+    _OPINION_SELECTION = [
+        ('neutral', 'Neutral'),
+        ('approved', 'Approved'),
+        ('disapproved', 'Disapproved'),
+    ]
+
     # Column Section
     issue_id = fields.Many2one(
         comodel_name='github.issue', string='Issue / PR', readonly=True,
@@ -24,14 +30,31 @@ class GithubComment(models.Model):
     body = fields.Char(string='Body', readonly=True)
 
     html_body = fields.Html(
-        string='HTML Body', readonly=True, compute='_compute_html_body')
+        string='HTML Body', readonly=True, compute='_compute_by_body',
+        multi='body', store=True)
+
+    opinion = fields.Selection(
+        string='Opinion', readonly=True, compute='_compute_by_body',
+        multi='body', store=True, selection=_OPINION_SELECTION,
+        default='neutral')
+
+    is_bot_comment = fields.Boolean(
+        string='Is Bot Comment', related='author_id.is_bot_account',
+        store=True)
 
     # Compute section
     @api.multi
     @api.depends('body')
-    def _compute_html_body(self):
+    def _compute_by_body(self):
         for comment in self:
-            comment.html_body = markdown.markdown(comment.body)
+            if comment.body:
+                comment.html_body = markdown.markdown(comment.body)
+            if ':-1:' in comment.body:
+                comment.opinion = 'disapproved'
+            elif ':+1:' in comment.body:
+                comment.opinion = 'approved'
+            else:
+                comment.opinion = 'neutral'
 
     # Overloadable Section
     def get_odoo_data_from_github(self, data):
