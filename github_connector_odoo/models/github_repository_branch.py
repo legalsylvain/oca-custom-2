@@ -114,6 +114,14 @@ class GithubRepositoryBranch(models.Model):
                 len(repository_branch.module_version_ids)
 
     # Custom Section
+    @api.model
+    def _set_state_to_analyse(self):
+        """ function called when the module is installed to set all branches
+        to analyze again.
+        """
+        branches = self.search([('state', '=', 'analyzed')])
+        branches.write({'state': 'to_analyze'})
+
     @api.multi
     def _analyze_code(self):
         module_version_obj = self.env['odoo.module.version']

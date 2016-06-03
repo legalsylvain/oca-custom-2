@@ -12,6 +12,7 @@
         'github_connector',
     ],
     'data': [
+        'data/function.xml',
         'views/view_reporting.xml',
         'views/action.xml',
         'views/menu.xml',
