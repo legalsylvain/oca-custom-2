@@ -73,13 +73,15 @@ class GithubRepository(models.Model):
     def button_analyze_code(self):
         return self._analyze_code()
 
+    @api.model
     def cron_download_all(self):
         branches = self.search([])
         branches._download_code()
         return True
 
+    @api.model
     def cron_analyze_all(self):
-        branches = self.search([])
+        branches = self.search([('state', '=', 'to_analyze')])
         branches._analyze_code()
         return True
 
