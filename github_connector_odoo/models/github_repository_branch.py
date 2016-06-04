@@ -122,10 +122,9 @@ class GithubRepositoryBranch(models.Model):
         branches = self.search([('state', '=', 'analyzed')])
         branches.write({'state': 'to_analyze'})
 
-    @api.one
-    def analyze_code_one(self):
+    @api.model
+    def analyze_code_one(self, branch):
         module_version_obj = self.env['odoo.module.version']
-        branch = self
         # Delete all associated module versions
         module_versions = module_version_obj.search([
             ('repository_branch_id', '=', branch.id)])
@@ -158,7 +157,7 @@ class GithubRepositoryBranch(models.Model):
                         module_info['technical_name'] = module_name
                         module_version_obj.create_or_update_from_manifest(
                             module_info, branch)
-        return super(GithubRepositoryBranch, self).analyze_code_one()
+        return super(GithubRepositoryBranch, self).analyze_code_one(branch)
 
     # Copy Paste from Odoo Core
     # This function is for the time being in another function.

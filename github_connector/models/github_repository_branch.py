@@ -150,12 +150,11 @@ class GithubRepository(models.Model):
                         res.append(os.path.join(root, fic))
         return res
 
-    @api.one
-    def analyze_code_one(self):
+    @api.model
+    def analyze_code_one(self, branch):
         """Overload Me in custom Module that manage Source Code analysis.
         """
         commit_obj = self.env['git.commit']
-        branch = self
         path = branch.local_path
         # Compute Files Sizes
         size = 0
@@ -197,7 +196,7 @@ class GithubRepository(models.Model):
                     "Warning Folder %s not found. Analyze skipped." % (path))
             else:
                 _logger.info("Analyzing Source Code in %s ..." % (path))
-                vals = branch.analyze_code_one()[0]
+                vals = self.analyze_code_one(branch)
                 vals.update({
                     'last_analyze_date': datetime.today(),
                     'state': 'analyzed',
