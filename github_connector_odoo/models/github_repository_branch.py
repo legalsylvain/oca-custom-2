@@ -122,43 +122,43 @@ class GithubRepositoryBranch(models.Model):
         branches = self.search([('state', '=', 'analyzed')])
         branches.write({'state': 'to_analyze'})
 
-    @api.multi
-    def _analyze_code(self):
+    @api.one
+    def analyze_code_one(self):
         module_version_obj = self.env['odoo.module.version']
-        for branch in self:
-            # Delete all associated module versions
-            module_versions = module_version_obj.search([
-                ('repository_branch_id', '=', branch.id)])
-            module_versions.with_context(
-                dont_change_repository_branch_state=True).unlink()
+        branch = self
+        # Delete all associated module versions
+        module_versions = module_version_obj.search([
+            ('repository_branch_id', '=', branch.id)])
+        module_versions.with_context(
+            dont_change_repository_branch_state=True).unlink()
 
-            # Compute path(s) to analyze
-            if branch.module_paths:
-                paths = []
-                for path in branch.module_paths.split('\n'):
-                    if path.strip():
-                        paths.append(branch.local_path + '/' + path)
+        # Compute path(s) to analyze
+        if branch.module_paths:
+            paths = []
+            for path in branch.module_paths.split('\n'):
+                if path.strip():
+                    paths.append(branch.local_path + '/' + path)
+        else:
+            paths = [branch.local_path]
+        # Scan each path, if exists
+        for path in paths:
+            if not os.path.exists(path):
+                _logger.warning(
+                    "Unable to analyse %s. Source code not found." % (
+                        path))
             else:
-                paths = [branch.local_path]
-            # Scan each path, if exists
-            for path in paths:
-                if not os.path.exists(path):
-                    _logger.warning(
-                        "Unable to analyse %s. Source code not found." % (
-                            path))
-                else:
-                    # Analyze folders and create module versions
-                    _logger.info("Analyzing repository %s ..." % (path))
-                    for module_name in self.listdir(path):
-                        module_info = load_information_from_description_file(
-                            module_name, path + '/' + module_name)
-                        # Create module version, if the module is installable
-                        # in the serie
-                        if module_info.get('installable', False):
-                            module_info['technical_name'] = module_name
-                            module_version_obj.create_or_update_from_manifest(
-                                module_info, branch)
-        return super(GithubRepositoryBranch, self)._analyze_code()
+                # Analyze folders and create module versions
+                _logger.info("Analyzing repository %s ..." % (path))
+                for module_name in self.listdir(path):
+                    module_info = load_information_from_description_file(
+                        module_name, path + '/' + module_name)
+                    # Create module version, if the module is installable
+                    # in the serie
+                    if module_info.get('installable', False):
+                        module_info['technical_name'] = module_name
+                        module_version_obj.create_or_update_from_manifest(
+                            module_info, branch)
+        return super(GithubRepositoryBranch, self).analyze_code_one()
 
     # Copy Paste from Odoo Core
     # This function is for the time being in another function.
