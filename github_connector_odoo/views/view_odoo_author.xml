@@ -20,7 +20,7 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
         <field name="arch" type="xml">
             <tree>
                 <field name="name"/>
-<!--                <field name="module_qty"/>-->
+                <field name="module_qty"/>
             </tree>
         </field>
     </record>
@@ -37,9 +37,10 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
                     <notebook>
                         <page string="Modules Information">
                             <group col="4">
-<!--                                <field name="module_qty"/>-->
+                                <field name="module_qty"/>
+                                <newline />
+                                <field name="module_ids" colspan="4" nolabel="1"/>
                             </group>
-<!--                            <field name="module_ids" colspan="4" nolabel="1"/>-->
                         </page>
                     </notebook>
                 </sheet>

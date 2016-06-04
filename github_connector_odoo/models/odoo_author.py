@@ -8,7 +8,7 @@ from openerp import models, fields, api
 
 class OdooAuthor(models.Model):
     _name = 'odoo.author'
-#    _order = 'module_qty desc, name'
+    _order = 'module_qty desc, name'
 
     # Column Section
     name = fields.Char(
@@ -19,20 +19,20 @@ class OdooAuthor(models.Model):
         relation='github_module_version_author_rel',
         column1='author_id', column2='module_version_id', readonly=True)
 
-#    module_ids = fields.Many2many(
-#        string='Modules', comodel_name='odoo.module',
-#        relation='github_module_author_rel',
-#        column1='author_id', column2='module_id', readonly=True)
+    module_ids = fields.Many2many(
+        string='Modules', comodel_name='odoo.module',
+        relation='github_module_author_rel',
+        column1='author_id', column2='module_id', readonly=True)
 
-#    module_qty = fields.Integer(
-#        string='Modules Quantity',
-#        compute='compute_module_qty', store=True)
+    module_qty = fields.Integer(
+        string='Modules Quantity',
+        compute='_compute_module_qty', store=True)
 
-#    @api.multi
-#    @api.depends('module_ids')
-#    def compute_module_qty(self):
-#        for author in self:
-#            author.module_qty = len(author.module_ids)
+    @api.multi
+    @api.depends('module_ids.author_ids')
+    def _compute_module_qty(self):
+        for author in self:
+            author.module_qty = len(author.module_ids)
 
     # Custom Section
     @api.model
