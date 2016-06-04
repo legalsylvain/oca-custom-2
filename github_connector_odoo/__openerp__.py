@@ -12,6 +12,8 @@
         'github_connector',
     ],
     'data': [
+        'security/ir.model.access.csv',
+        'security/ir_rule.xml',
         'data/function.xml',
         'views/view_reporting.xml',
         'views/action.xml',
@@ -22,6 +24,7 @@
         'views/view_odoo_lib_python.xml',
         'views/view_odoo_module.xml',
         'views/view_odoo_module_version.xml',
+        'views/view_odoo_module_evaluation.xml',
         'views/view_github_organization.xml',
         'views/view_github_repository.xml',
         'views/view_github_repository_branch.xml',
